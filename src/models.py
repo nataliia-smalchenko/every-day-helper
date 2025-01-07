@@ -41,23 +41,14 @@ class Address(Field):
             raise ValueError("Address cannot be empty.")
         super().__init__(value)
         
-        
-class Note:
-    def __init__(self, content):
-        self.content = content
-
-    def __str__(self):
-        return self.content
 class Record:
-   # Дописати логіку для збереження адресси
-
+  
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
         self.emails = []
         self.birthday = None
         self.address = None
-        self.note = None
 
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
@@ -88,9 +79,6 @@ class Record:
     def add_address(self, address):
         self.address = Address(address)
 
-    def add_note(self, note):
-        self.note = Note(note)
-
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)
 
@@ -108,13 +96,11 @@ class Record:
         emails = "; ".join(e.value for e in self.emails) if self.emails else "N/A"
         birthday = self.birthday.value.strftime("%d.%m.%Y") if self.birthday else "N/A"
         address = str(self.address) if self.address else "N/A"
-        note = str(self.note) if self.note else "N/A"
         return (f"Name: {self.name.value}\n"
                 f"Phones: {phones}\n"
                 f"Emails: {emails}\n"
                 f"Birthday: {birthday}\n"
-                f"Address: {address}\n"
-                f"Note: {note}")
+                f"Address: {address}\n")
 
 class AddressBook(UserDict):
 
@@ -124,11 +110,6 @@ class AddressBook(UserDict):
     def find(self, name):
         return self.data.get(name)
 
-    # def upcoming_birthdays(self):
-    #     today = datetime.today()
-    #     next_week = today + timedelta(days=7)
-    #     return [record for record in self.data.values() if record.birthday and today <= record.birthday.value.replace(year=today.year) <= next_week]
-    
     def upcoming_birthdays(self, days=7):
         today = datetime.today()
         end_date = today + timedelta(days=days)

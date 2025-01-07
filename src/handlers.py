@@ -12,15 +12,12 @@ def add_contact(args, book):
     name, phone, *other = args
     birthday = None
     address = None
-    note = None
     email = None
 
     if len(other) > 0:
         birthday = other[0]
     if len(other) > 1:
         address = other[1]
-    if len(other) > 2:
-        note = other[2]
     if len(other) > 3:
         email = other[3]
 
@@ -38,8 +35,6 @@ def add_contact(args, book):
         record.add_birthday(birthday)
     if address:
         record.add_address(address)
-    if note:
-        record.add_note(note)
     if email:
         record.add_email(email)
 
@@ -61,8 +56,6 @@ def change_contact(args, book):
             record.add_birthday(new_value)
         elif field == "address":
             record.add_address(new_value)
-        elif field == "note":
-            record.add_note(new_value)
         elif field == "email":
             record.add_email(new_value)
         else:
