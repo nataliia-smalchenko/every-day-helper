@@ -1,5 +1,6 @@
 from collections import UserDict
 import re
+import pickle
 from datetime import datetime, timedelta
 
 class Field:
@@ -34,19 +35,20 @@ class Birthday(Field):
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY.")
 
-# Дописати логіку поля для адресси
 class Address(Field):
-    pass
-
-
+    def __init__(self, value):
+        if not value:
+            raise ValueError("Address cannot be empty.")
+        super().__init__(value)
+        
 class Record:
-   # Дописати логіку для збереження адресси
-
+  
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
         self.emails = []
         self.birthday = None
+        self.address = None
 
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
@@ -73,6 +75,9 @@ class Record:
                 self.emails[i] = Email(new_email)
                 return
         raise ValueError(f"Email {old_email} not found.")
+    
+    def add_address(self, address):
+        self.address = Address(address)
 
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)
@@ -90,39 +95,39 @@ class Record:
         phones = "; ".join(p.value for p in self.phones) if self.phones else "N/A"
         emails = "; ".join(e.value for e in self.emails) if self.emails else "N/A"
         birthday = self.birthday.value.strftime("%d.%m.%Y") if self.birthday else "N/A"
+        address = str(self.address) if self.address else "N/A"
         return (f"Name: {self.name.value}\n"
                 f"Phones: {phones}\n"
                 f"Emails: {emails}\n"
-                f"Birthday: {birthday}")
+                f"Birthday: {birthday}\n"
+                f"Address: {address}\n")
 
 class AddressBook(UserDict):
-    # Додати розширений пошук, так щоб можна було шукати не тільки по імені але і по іншим параметрам
 
-    # Додати розширений функціонал у функцію  upcoming_birthdays, так щоб користувач міг
-    # задати кількість днів в ручну
     def add_record(self, record):
         self.data[record.name.value] = record
 
     def find(self, name):
         return self.data.get(name)
 
-    def upcoming_birthdays(self):
+    def upcoming_birthdays(self, days=7):
         today = datetime.today()
-        next_week = today + timedelta(days=7)
-        return [record for record in self.data.values() if record.birthday and today <= record.birthday.value.replace(year=today.year) <= next_week]
+        end_date = today + timedelta(days=days)
+        return [record for record in self.data.values() if record.birthday and today <= record.birthday.value.replace(year=today.year) <= end_date]
+   
+    def save_data(self, filename):
+        with open(filename, "wb") as f:
+            pickle.dump(self, f)
+            
+    @classmethod
+    def load_data(cls, filename):
+        try:
+            with open(filename, "rb") as f:
+                return pickle.load(f)
+        except FileNotFoundError:
+            return cls()
 
     def __str__(self):
-        return "\n".join(str(record) for record in self.data.values())
+        return "\n".join(str(record) for record in self.data.values())        
 
-# Класи для нотатків
 
-class Note:
-    pass
-
-class NotesBook(UserDict):
-    pass
-
-# Збереження та Завантаження Даних можна зробити через класс, за принципами ООП, замість того
-# що є в мейні. Тим самим можна зкоротити мейн
-class Storage:
-    pass

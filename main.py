@@ -1,26 +1,13 @@
 import pickle
-from utils import parse_input
-from models import AddressBook
-from handlers import greet, add_birthday, add_contact, show_all_contacts, show_birthday, show_phone, show_upcoming_birthdays, change_contact
+from src.utils import parse_input
+from src.models import AddressBook
+from src.handlers import ( greet, add_birthday, add_contact, show_all_contacts, show_birthday, show_phone, show_upcoming_birthdays, change_contact, )
 
 
-# тут майже все переписати треба
 FILENAME = "addressbook.pkl"
 
-# Перннести як класс у моделс
-def save_data(book, filename=FILENAME):
-    with open(filename, "wb") as f:
-        pickle.dump(book, f)
-
-def load_data(filename=FILENAME):
-    try:
-        with open(filename, "rb") as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        return AddressBook()
-
 def main():
-    book = load_data()
+    book = AddressBook.load_data(FILENAME)
     print("Welcome to the assistant bot!")
 
     while True:
@@ -40,7 +27,7 @@ def main():
         
         if command in ["close", "exit"]:
             print("Good bye!")
-            save_data(book)
+            book.save_data(FILENAME)
             break
 
         if command in handlers:
