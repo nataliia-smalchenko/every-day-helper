@@ -7,7 +7,7 @@ def greet(args, book):
 @input_error
 def add_contact(args, book):
     if len(args) < 2:
-        raise ValueError("Usage: add <name> <phone> [email] [birthday] [address] [note]")
+        raise ValueError("Usage: add <name> <phone> [email] [birthday] [address]")
 
     name, phone, *other = args
     birthday = None
@@ -59,7 +59,7 @@ def change_contact(args, book):
         elif field == "email":
             record.add_email(new_value)
         else:
-            raise ValueError("Invalid field. Valid fields: phone, birthday, address, note, email.")
+            raise ValueError("Invalid field. Valid fields: phone, birthday, address, email.")
 
         return f"{field.capitalize()} updated."
 
