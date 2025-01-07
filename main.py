@@ -1,4 +1,3 @@
-import pickle
 from src.utils import parse_input
 from src.models import AddressBook
 from src.handlers import ( greet, add_birthday, add_contact, show_all_contacts, show_birthday, show_phone, show_upcoming_birthdays, change_contact, )
@@ -9,6 +8,7 @@ FILENAME = "addressbook.pkl"
 def main():
     book = AddressBook.load_data(FILENAME)
     print("Welcome to the assistant bot!")
+    print(f"Loaded {len(book.data)} contacts.")
 
     while True:
         user_input = input("Enter a command: ")

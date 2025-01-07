@@ -31,8 +31,9 @@ class Phone(Field):
 class Birthday(Field):
     def __init__(self, value):
         try:
-            self.value = datetime.strptime(value, "%d.%m.%Y")
+            self.value = datetime.strptime(value, '%d.%m.%Y')
         except ValueError:
+            print(f"Invalid date format: '{value}'. Expected format: DD.MM.YYYY.")
             raise ValueError("Invalid date format. Use DD.MM.YYYY.")
 
 class Address(Field):
@@ -55,13 +56,11 @@ class Record:
 
     def remove_phone(self, phone):
         self.phones = [p for p in self.phones if p.value != phone]
-
-    def edit_phone(self, old_phone, new_phone):
-        for i, p in enumerate(self.phones):
-            if p.value == old_phone:
-                self.phones[i] = Phone(new_phone)
-                return
-        raise ValueError(f"Phone number {old_phone} not found.")
+    
+    def edit_phone(self, new_phone):
+        if not self.phones:
+            raise ValueError("No phones to update.")
+        self.phones[0] = Phone(new_phone)
 
     def add_email(self, email):
         self.emails.append(Email(email))
@@ -90,17 +89,17 @@ class Record:
         if next_birthday < today:
             next_birthday = next_birthday.replace(year=today.year + 1)
         return (next_birthday - today).days
-
+  
     def __str__(self):
         phones = "; ".join(p.value for p in self.phones) if self.phones else "N/A"
         emails = "; ".join(e.value for e in self.emails) if self.emails else "N/A"
         birthday = self.birthday.value.strftime("%d.%m.%Y") if self.birthday else "N/A"
         address = str(self.address) if self.address else "N/A"
         return (f"Name: {self.name.value}\n"
-                f"Phones: {phones}\n"
-                f"Emails: {emails}\n"
-                f"Birthday: {birthday}\n"
-                f"Address: {address}\n")
+            f"Phones: {phones}\n"
+            f"Emails: {emails}\n"
+            f"Birthday: {birthday}\n"
+            f"Address: {address}\n")
 
 class AddressBook(UserDict):
 
@@ -115,16 +114,21 @@ class AddressBook(UserDict):
         end_date = today + timedelta(days=days)
         return [record for record in self.data.values() if record.birthday and today <= record.birthday.value.replace(year=today.year) <= end_date]
    
-    def save_data(self, filename):
-        with open(filename, "wb") as f:
-            pickle.dump(self, f)
+    def save_data(self, filename="addressbook.pkl"):
+        try:
+            with open(filename, "wb") as f:
+                pickle.dump(self, f)
+                print(f"Data successfully saved to {filename}.")
+        except Exception as e:
+                print(f"Error saving data: {e}")
             
     @classmethod
-    def load_data(cls, filename):
+    def load_data(cls, filename="addressbook.pkl"):
         try:
             with open(filename, "rb") as f:
                 return pickle.load(f)
-        except FileNotFoundError:
+        except (FileNotFoundError, EOFError):
+            print("Address book is empty or does not exist. Creating a new one.")
             return cls()
 
     def __str__(self):
