@@ -1,5 +1,5 @@
-from utils import input_error
-from models import Record
+from .utils import input_error
+from .models import Record
 
 def greet(args, book):
     return "How can I help you?"
