@@ -1,5 +1,6 @@
 from src.utils import input_error
 from src.models import Record
+#from colorama import Fore, Style
 
 def greet(args, book):
     return "How can I help you?"
@@ -10,24 +11,24 @@ def add_contact(args, book):
         raise ValueError("Usage: add <name> <phone> [email] [birthday] [address]")
 
     name, phone, *other = args
+    email = None
     birthday = None
     address = None
-    email = None
+    
+    if book.find(name):
+        return f"Contact with name '{name}' already exists."
 
-    if len(other) > 0:
-        birthday = other[0]
-    if len(other) > 1:
-        address = other[1]
-    if len(other) > 3:
-        email = other[3]
+    if len(other) > 0 and '@' in other[0]:
+        email = other[0]
+    if len(other) > 1 and '@' not in other[1]:
+        birthday = other[1]
+    if len(other) > 2 and '@' not in other[2]:
+        address = other[2]
 
-    record = book.find(name)
-    message = "Contact updated."
-
-    if record is None:
-        record = Record(name)
-        book.add_record(record)
-        message = "Contact added."
+    record = Record(name)
+    book.add_record(record)
+ 
+    message = "Contact add."
 
     if phone:
         record.add_phone(phone)
@@ -49,21 +50,22 @@ def change_contact(args, book):
     name, field, new_value = args
     record = book.find(name)
 
-    if record:
-        if field == "phone":
-            record.edit_phone(new_value)
-        elif field == "birthday":
-            record.add_birthday(new_value)
-        elif field == "address":
-            record.add_address(new_value)
-        elif field == "email":
-            record.add_email(new_value)
-        else:
-            raise ValueError("Invalid field. Valid fields: phone, birthday, address, email.")
+    if not record:
+        return "Contact not found."
 
-        return f"{field.capitalize()} updated."
+    if field == "phone":
+        record.edit_phone(new_value)
+    elif field == "birthday":
+        record.add_birthday(new_value)
+    elif field == "address":
+        record.add_address(new_value)
+    elif field == "email":
+        record.add_email(new_value)
+    else:
+        raise ValueError("Invalid field. Valid fields: phone, birthday, address, email.")
 
-    return "Contact not found."
+    return f"{field.capitalize()} updated."
+
 
 
 @input_error
@@ -81,7 +83,21 @@ def show_phone(args, book):
 def show_all_contacts(_, book):
     if not book.data:
         return "No contacts found."
-    return str(book)
+    
+    #table = f"{Fore.LIGHTYELLOW_EX}{'Name':<20}{'Phones':<20}{'Emails':<25}{'Birthday':<15}{'Address':<30}{Style.RESET_ALL}\n"
+    table = f"{'Name':<20}{'Phones':<20}{'Emails':<25}{'Birthday':<15}{'Address':<30}\n"
+    
+    for record in book.data.values():
+        #name_colored = f"{Fore.BLUE}{record.name.value}{Style.RESET_ALL}"
+        phones = "; ".join(p.value for p in record.phones) if record.phones else "N/A"
+        emails = "; ".join(e.value for e in record.emails) if record.emails else "N/A"
+        birthday = record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "N/A"
+        address = str(record.address) if record.address else "N/A"
+        
+        table += f"{record.name.value:<20}{phones:<20}{emails:<25}{birthday:<15}{address:<30}\n"
+        #table += f"{name_colored:<20}{phones:<20}{emails:<25}{birthday:<15}{address:<30}\n"
+    
+    return table
 
 
 @input_error
@@ -135,7 +151,6 @@ def show_birthday(args, book):
     return "No birthday found for this contact."
 
 
-# додати можливість задати кількість днів в ручну
 @input_error
 def show_upcoming_birthdays(_, book):
     upcoming = book.upcoming_birthdays()
