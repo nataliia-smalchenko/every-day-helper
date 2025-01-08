@@ -1,9 +1,10 @@
 from src.utils import input_error
 from src.models import Record
-#from colorama import Fore, Style
+
 
 def greet(args, book):
     return "How can I help you?"
+
 
 @input_error
 def add_contact(args, book):
@@ -11,6 +12,10 @@ def add_contact(args, book):
         raise ValueError("Usage: add <name> <phone> [email] [birthday] [address]")
 
     name, phone, *other = args
+    
+    if not phone.isdigit() or len(phone) != 10:
+        raise ValueError("Phone number must consist of exactly 10 digits.")
+    
     email = None
     birthday = None
     address = None
@@ -28,7 +33,7 @@ def add_contact(args, book):
     record = Record(name)
     book.add_record(record)
  
-    message = "Contact add."
+    message = f"Contact '{name}' add."
 
     if phone:
         record.add_phone(phone)
@@ -51,7 +56,7 @@ def change_contact(args, book):
     record = book.find(name)
 
     if not record:
-        return "Contact not found."
+        return f"Contact '{name}' not found."
 
     if field == "phone":
         record.edit_phone(new_value)
@@ -65,7 +70,6 @@ def change_contact(args, book):
         raise ValueError("Invalid field. Valid fields: phone, birthday, address, email.")
 
     return f"{field.capitalize()} updated."
-
 
 
 @input_error
@@ -84,18 +88,15 @@ def show_all_contacts(_, book):
     if not book.data:
         return "No contacts found."
     
-    #table = f"{Fore.LIGHTYELLOW_EX}{'Name':<20}{'Phones':<20}{'Emails':<25}{'Birthday':<15}{'Address':<30}{Style.RESET_ALL}\n"
     table = f"{'Name':<20}{'Phones':<20}{'Emails':<25}{'Birthday':<15}{'Address':<30}\n"
     
     for record in book.data.values():
-        #name_colored = f"{Fore.BLUE}{record.name.value}{Style.RESET_ALL}"
-        phones = "; ".join(p.value for p in record.phones) if record.phones else "N/A"
-        emails = "; ".join(e.value for e in record.emails) if record.emails else "N/A"
-        birthday = record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "N/A"
-        address = str(record.address) if record.address else "N/A"
+        phones = "; ".join(p.value for p in record.phones) if record.phones else " "
+        emails = "; ".join(e.value for e in record.emails) if record.emails else " "
+        birthday = record.birthday.value.strftime("%d.%m.%Y") if record.birthday else " "
+        address = str(record.address) if record.address else " "
         
         table += f"{record.name.value:<20}{phones:<20}{emails:<25}{birthday:<15}{address:<30}\n"
-        #table += f"{name_colored:<20}{phones:<20}{emails:<25}{birthday:<15}{address:<30}\n"
     
     return table
 
@@ -110,7 +111,7 @@ def add_email(args, book):
 
     if record:
         record.add_email(email)
-        return "Email added."
+        return f"Email '{email}' added."
 
     return "Contact not found."
 
@@ -125,7 +126,7 @@ def change_email(args, book):
 
     if record:
         record.add_email(new_email)
-        return "Email updated."
+        return f"Email '{new_email}' updated."
 
     return "Contact not found."
 
@@ -137,8 +138,8 @@ def add_birthday(args, book):
 
     if record:
         record.add_birthday(birthday)
-        return "Birthday added."
-    return "Contact not found."
+        return f"Birthday added for '{name}'."
+    return f"Contact '{name}' not found."
 
 
 @input_error
@@ -157,4 +158,12 @@ def show_upcoming_birthdays(_, book):
 
     if not upcoming:
         return "No birthdays in the next 7 days."
-    return "\n".join(f"{record.name.value}: {record.birthday.value.strftime('%d.%m.%Y')}" for record in upcoming)
+    
+    table = f"{'Name':<20}{'Birthday':<15}\n"
+    
+    for record in upcoming:
+        birthday = record.birthday.value.strftime("%d.%m.%Y")
+        table += f"{record.name.value:<20}{birthday:<15}\n"
+    
+    return table
+
