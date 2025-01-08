@@ -87,17 +87,23 @@ def show_phone(args, book):
 def show_all_contacts(_, book):
     if not book.data:
         return "No contacts found."
-    
-    table = f"{'Name':<20}{'Phones':<20}{'Emails':<25}{'Birthday':<15}{'Address':<30}\n"
-    
+
+    table_width = 120
+
+    table = "=" * table_width + "\n"
+    table += f"| {'Name'.ljust(20)} | {'Phones'.ljust(20)} | {'Emails'.ljust(25)} | {'Birthday'.ljust(15)} | {'Address'.ljust(24)} |\n"
+    table += "=" * table_width + "\n"
+
     for record in book.data.values():
-        phones = "; ".join(p.value for p in record.phones) if record.phones else " "
-        emails = "; ".join(e.value for e in record.emails) if record.emails else " "
-        birthday = record.birthday.value.strftime("%d.%m.%Y") if record.birthday else " "
-        address = str(record.address) if record.address else " "
-        
-        table += f"{record.name.value:<20}{phones:<20}{emails:<25}{birthday:<15}{address:<30}\n"
-    
+        name = record.name.value.ljust(20)
+        phones = "; ".join(p.value for p in record.phones).ljust(20) if record.phones else " ".ljust(20)
+        emails = "; ".join(e.value for e in record.emails).ljust(25) if record.emails else " ".ljust(25)
+        birthday = record.birthday.value.strftime("%d.%m.%Y").ljust(15) if record.birthday else " ".ljust(15)
+        address = str(record.address).ljust(24) if record.address else " ".ljust(24)
+
+        table += f"| {name} | {phones} | {emails} | {birthday} | {address} |\n"
+
+    table += "=" * table_width
     return table
 
 
@@ -158,12 +164,17 @@ def show_upcoming_birthdays(_, book):
 
     if not upcoming:
         return "No birthdays in the next 7 days."
-    
-    table = f"{'Name':<20}{'Birthday':<15}\n"
-    
+
+    table_width = 40
+    table = "=" * table_width + "\n"
+    table += f"| {'Name'.ljust(20)} | {'Birthday'.ljust(14)} |\n"
+    table += "=" * table_width + "\n"
+
     for record in upcoming:
-        birthday = record.birthday.value.strftime("%d.%m.%Y")
-        table += f"{record.name.value:<20}{birthday:<15}\n"
-    
+        name = record.name.value.ljust(20)
+        birthday = record.birthday.value.strftime("%d.%m.%Y").ljust(14)
+        table += f"| {name} | {birthday} |\n"
+
+    table += "=" * table_width
     return table
 

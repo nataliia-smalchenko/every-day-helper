@@ -96,10 +96,10 @@ class Record:
         return (next_birthday - today).days
   
     def __str__(self):
-        phones = "; ".join(p.value for p in self.phones) if self.phones else "N/A"
-        emails = "; ".join(e.value for e in self.emails) if self.emails else "N/A"
-        birthday = self.birthday.value.strftime("%d.%m.%Y") if self.birthday else "N/A"
-        address = str(self.address) if self.address else "N/A"
+        phones = "; ".join(p.value for p in self.phones) if self.phones else " "
+        emails = "; ".join(e.value for e in self.emails) if self.emails else " "
+        birthday = self.birthday.value.strftime("%d.%m.%Y") if self.birthday else " "
+        address = str(self.address) if self.address else " "
         return (f"Name: {self.name.value}\n"
             f"Phones: {phones}\n"
             f"Emails: {emails}\n"

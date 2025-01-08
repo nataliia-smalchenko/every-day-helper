@@ -1,14 +1,16 @@
 from src.utils import parse_input
 from src.models import AddressBook
 from src.handlers import ( greet, add_birthday, add_contact, show_all_contacts, show_birthday, show_phone, show_upcoming_birthdays, change_contact, )
-
+from src.info_commands import print_command_list
 
 FILENAME = "addressbook.pkl"
+
 
 def main():
     book = AddressBook.load_data(FILENAME)
     print("Welcome to the assistant bot!")
     print(f"Loaded {len(book.data)} contacts.")
+    print_command_list()
 
     while True:
         user_input = input("Enter a command: ")
@@ -26,7 +28,6 @@ def main():
         }
         
         if command in ["close", "exit"]:
-            print("Good bye!")
             book.save_data(FILENAME)
             break
 
