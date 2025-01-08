@@ -1,9 +1,10 @@
 from src.utils import input_error
 from src.models import Record
-#from prompt_toolkit import HTML
+
 
 def greet(args, book):
     return "How can I help you?"
+
 
 @input_error
 def add_contact(args, book):
@@ -11,6 +12,10 @@ def add_contact(args, book):
         raise ValueError("Usage: add <name> <phone> [email] [birthday] [address]")
 
     name, phone, *other = args
+    
+    if not phone.isdigit() or len(phone) != 10:
+        raise ValueError("Phone number must consist of exactly 10 digits.")
+    
     email = None
     birthday = None
     address = None
@@ -67,7 +72,6 @@ def change_contact(args, book):
     return f"{field.capitalize()} updated."
 
 
-
 @input_error
 def show_phone(args, book):
     name, *_ = args
@@ -87,36 +91,14 @@ def show_all_contacts(_, book):
     table = f"{'Name':<20}{'Phones':<20}{'Emails':<25}{'Birthday':<15}{'Address':<30}\n"
     
     for record in book.data.values():
-        phones = "; ".join(p.value for p in record.phones) if record.phones else "N/A"
-        emails = "; ".join(e.value for e in record.emails) if record.emails else "N/A"
-        birthday = record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "N/A"
-        address = str(record.address) if record.address else "N/A"
+        phones = "; ".join(p.value for p in record.phones) if record.phones else " "
+        emails = "; ".join(e.value for e in record.emails) if record.emails else " "
+        birthday = record.birthday.value.strftime("%d.%m.%Y") if record.birthday else " "
+        address = str(record.address) if record.address else " "
         
         table += f"{record.name.value:<20}{phones:<20}{emails:<25}{birthday:<15}{address:<30}\n"
     
     return table
-
-# @input_error
-# def show_all_contacts(_, book):
-#     if not book.data:
-#         return "No contacts found."
-    
-#     table = HTML(
-#         f"<style bg='yellow' fg='black'>{'Name':<20}{'Phones':<20}{'Emails':<25}{'Birthday':<15}{'Address':<30}</style>\n"
-#     )
-    
-#     for record in book.data.values():
-#         name_colored = HTML(f"<style fg='blue'>{record.name.value}</style>")
-#         phones = "; ".join(p.value for p in record.phones) if record.phones else "N/A"
-#         emails = "; ".join(e.value for e in record.emails) if record.emails else "N/A"
-#         birthday = record.birthday.value.strftime("%d.%m.%Y") if record.birthday else "N/A"
-#         address = str(record.address) if record.address else "N/A"
-        
-#         table += HTML(
-#             f"{name_colored:<20}{phones:<20}{emails:<25}{birthday:<15}{address:<30}\n"
-#         )
-    
-#     return table
 
 
 @input_error
@@ -185,20 +167,3 @@ def show_upcoming_birthdays(_, book):
     
     return table
 
-# @input_error
-# def show_upcoming_birthdays(_, book):
-#     upcoming = book.upcoming_birthdays()
-
-#     if not upcoming:
-#         return "No birthdays in the next 7 days."
-
-#     table = HTML(
-#         f"<style bg='yellow' fg='black'>{'Name':<20}{'Birthday':<15}</style>\n"
-#     )
-    
-#     for record in upcoming:
-#         name_colored = HTML(f"<style fg='blue'>{record.name.value}</style>")
-#         birthday_colored = HTML(f"<style fg='magenta'>{record.birthday.value.strftime('%d.%m.%Y')}</style>")
-#         table += HTML(f"{name_colored:<20}{birthday_colored:<15}\n")
-
-#     return table
