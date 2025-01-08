@@ -119,7 +119,7 @@ class AddressBook(UserDict):
         end_date = today + timedelta(days=days)
         return [record for record in self.data.values() if record.birthday and today <= record.birthday.value.replace(year=today.year) <= end_date]
    
-    @classmethod
+
     def save_data(self, filename="addressbook.pkl"):
         try:
             with open(filename, "wb") as f:
