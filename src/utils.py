@@ -1,6 +1,11 @@
-# Парсинг Вхідних Даних
+import shlex
+
 def parse_input(user_input):
-    parts = user_input.strip().split()
+    try:
+        parts = shlex.split(user_input.strip())
+    except ValueError as e:
+        print(f"Error parsing input: {e}")
+        return None, []
     if not parts:
         return None, []
     cmd = parts[0].lower()
