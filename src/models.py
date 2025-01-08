@@ -4,6 +4,7 @@ import pickle
 from datetime import datetime, timedelta
 
 class Field:
+    
     def __init__(self, value):
         self.value = value
 
@@ -11,32 +12,36 @@ class Field:
         return str(self.value)
 
 class Name(Field):
+    
     def __init__(self, value):
         if not value:
             raise ValueError("Name cannot be empty.")
         super().__init__(value)
 
 class Email(Field):
+    
     def __init__(self, value):
         if not re.fullmatch(r"[^@]+@[^@]+\.[^@]+", value):
             raise ValueError("Invalid email format.")
         super().__init__(value)
 
 class Phone(Field):
+    
     def __init__(self, value):
         if not re.fullmatch(r"\d{10}", value):
             raise ValueError("Phone number must consist of exactly 10 digits.")
         super().__init__(value)
 
 class Birthday(Field):
+    
     def __init__(self, value):
         try:
             self.value = datetime.strptime(value, '%d.%m.%Y')
         except ValueError:
-            print(f"Invalid date format: '{value}'. Expected format: DD.MM.YYYY.")
             raise ValueError("Invalid date format. Use DD.MM.YYYY.")
 
 class Address(Field):
+    
     def __init__(self, value):
         if not value:
             raise ValueError("Address cannot be empty.")
@@ -114,11 +119,11 @@ class AddressBook(UserDict):
         end_date = today + timedelta(days=days)
         return [record for record in self.data.values() if record.birthday and today <= record.birthday.value.replace(year=today.year) <= end_date]
    
+    @classmethod
     def save_data(self, filename="addressbook.pkl"):
         try:
             with open(filename, "wb") as f:
                 pickle.dump(self, f)
-                print(f"Data successfully saved to {filename}.")
         except Exception as e:
                 print(f"Error saving data: {e}")
             
@@ -128,7 +133,6 @@ class AddressBook(UserDict):
             with open(filename, "rb") as f:
                 return pickle.load(f)
         except (FileNotFoundError, EOFError):
-            print("Address book is empty or does not exist. Creating a new one.")
             return cls()
 
     def __str__(self):
