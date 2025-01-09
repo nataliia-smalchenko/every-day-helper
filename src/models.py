@@ -3,6 +3,9 @@ import re
 import pickle
 from datetime import datetime, timedelta
 
+
+DATE_FORMAT = "%d.%m.%Y"
+
 class Field:
     
     def __init__(self, value):
@@ -36,7 +39,7 @@ class Birthday(Field):
     
     def __init__(self, value):
         try:
-            self.value = datetime.strptime(value, '%d.%m.%Y')
+            self.value = datetime.strptime(value, DATE_FORMAT)
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY.")
 
@@ -98,7 +101,7 @@ class Record:
     def __str__(self):
         phones = "; ".join(p.value for p in self.phones) if self.phones else " "
         emails = "; ".join(e.value for e in self.emails) if self.emails else " "
-        birthday = self.birthday.value.strftime("%d.%m.%Y") if self.birthday else " "
+        birthday = self.birthday.value.strftime(DATE_FORMAT) if self.birthday else " "
         address = str(self.address) if self.address else " "
         return (f"Name: {self.name.value}\n"
             f"Phones: {phones}\n"
@@ -114,11 +117,33 @@ class AddressBook(UserDict):
     def find(self, name):
         return self.data.get(name)
 
-    def upcoming_birthdays(self, days=7):
+    def upcoming_birthdays(self):
+        try:
+            days = int(input("Enter the number of days to search for birthdays: "))
+            if days < 0:
+                print("The number of days must be a positive number")
+                return []
+        except ValueError:
+            print("Please enter a valid number.")
+            return []
+
         today = datetime.today()
         end_date = today + timedelta(days=days)
-        return [record for record in self.data.values() if record.birthday and today <= record.birthday.value.replace(year=today.year) <= end_date]
-   
+        upcoming_birthdays_list = []
+
+        for record in self.data.values():
+            if record.birthday:
+
+                birthday = record.birthday.value
+                birthday = birthday.replace(year=today.year)
+
+                if birthday < today:
+                    birthday = birthday.replace(year=today.year + 1)
+
+                if today <= birthday <= end_date:
+                    upcoming_birthdays_list.append(record)
+
+        return upcoming_birthdays_list
 
     def save_data(self, filename="addressbook.pkl"):
         try:

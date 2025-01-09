@@ -2,6 +2,8 @@ from src.utils import input_error
 from src.models import Record
 
 
+DATE_FORMAT = "%d.%m.%Y"
+
 def greet(args, book):
     return "How can I help you?"
 
@@ -98,7 +100,7 @@ def show_all_contacts(_, book):
         name = record.name.value.ljust(20)
         phones = "; ".join(p.value for p in record.phones).ljust(20) if record.phones else " ".ljust(20)
         emails = "; ".join(e.value for e in record.emails).ljust(25) if record.emails else " ".ljust(25)
-        birthday = record.birthday.value.strftime("%d.%m.%Y").ljust(15) if record.birthday else " ".ljust(15)
+        birthday = record.birthday.value.strftime(DATE_FORMAT).ljust(15) if record.birthday else " ".ljust(15)
         address = str(record.address).ljust(24) if record.address else " ".ljust(24)
 
         table += f"| {name} | {phones} | {emails} | {birthday} | {address} |\n"
@@ -154,7 +156,7 @@ def show_birthday(args, book):
     record = book.find(name)
 
     if record and record.birthday:
-        return f"{name}: {record.birthday.value.strftime('%d.%m.%Y')}"
+        return f"{name}: {record.birthday.value.strftime(DATE_FORMAT)}"
     return "No birthday found for this contact."
 
 
@@ -163,7 +165,7 @@ def show_upcoming_birthdays(_, book):
     upcoming = book.upcoming_birthdays()
 
     if not upcoming:
-        return "No birthdays in the next 7 days."
+        return "No upcoming birthdays."
 
     table_width = 40
     table = "=" * table_width + "\n"
@@ -172,7 +174,7 @@ def show_upcoming_birthdays(_, book):
 
     for record in upcoming:
         name = record.name.value.ljust(20)
-        birthday = record.birthday.value.strftime("%d.%m.%Y").ljust(14)
+        birthday = record.birthday.value.strftime(DATE_FORMAT).ljust(14)
         table += f"| {name} | {birthday} |\n"
 
     table += "=" * table_width
