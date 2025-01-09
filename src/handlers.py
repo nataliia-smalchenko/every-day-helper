@@ -1,7 +1,7 @@
 from src.utils import input_error
 from src.models.record import Record
 from src.models.note import Note
-from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME, DATE_FORMAT
+from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME
 
 def greet(args, book):
     return "How can I help you?"
