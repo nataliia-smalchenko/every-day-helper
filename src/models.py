@@ -48,7 +48,7 @@ class Address(Field):
         super().__init__(value)
         
 class Record:
-  
+
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
@@ -114,11 +114,34 @@ class AddressBook(UserDict):
     def find(self, name):
         return self.data.get(name)
 
-    def upcoming_birthdays(self, days=7):
+    def upcoming_birthdays(self):
+        # Запитуємо у користувача кількість днів
+        try:
+            days = int(input("Enter the number of days to search for birthdays: "))
+            if days < 0:
+                print("The number of days must be a positive number")
+                return []
+        except ValueError:
+            print("Please enter a valid number.")
+            return []
+
         today = datetime.today()
         end_date = today + timedelta(days=days)
-        return [record for record in self.data.values() if record.birthday and today <= record.birthday.value.replace(year=today.year) <= end_date]
-   
+        upcoming_birthdays_list = []
+
+        for record in self.data.values():
+            if record.birthday:
+
+                birthday = record.birthday.value
+                birthday = birthday.replace(year=today.year)
+
+                if birthday < today:
+                    birthday = birthday.replace(year=today.year + 1)
+
+                if today <= birthday <= end_date:
+                    upcoming_birthdays_list.append(record)
+
+        return upcoming_birthdays_list
 
     def save_data(self, filename="addressbook.pkl"):
         try:

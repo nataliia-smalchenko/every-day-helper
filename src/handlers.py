@@ -153,12 +153,12 @@ def show_birthday(args, book):
 
 
 @input_error
-def show_upcoming_birthdays(_, book):
+def show_upcoming_birthdays(args, book):
     upcoming = book.upcoming_birthdays()
 
     if not upcoming:
-        return "No birthdays in the next 7 days."
-    
+        return "No upcoming birthdays."
+
     table = f"{'Name':<20}{'Birthday':<15}\n"
     
     for record in upcoming:
