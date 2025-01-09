@@ -49,7 +49,7 @@ def main():
                 "add_tag": add_tag,
                 "remove_tag": remove_tag,
             }
-            
+
             if command in ["close", "exit"]:
                 print("Good bye!")
                 adrress_book.save_data(ADRRESS_BOOK_FILENAME)

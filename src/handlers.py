@@ -176,7 +176,6 @@ def search_contacts(args, book):
     if not args:
         raise ValueError("Usage: search_contacts <query>")
     query = args[0].strip("'").strip()
-    print(query)
     results = book.search(query)
     if not results:
         return "No contacts found for the query."
