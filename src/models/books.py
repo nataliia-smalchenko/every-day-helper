@@ -17,6 +17,10 @@ class AddressBook(UserDict):
         self.data.pop(name)
 
     def search(self, query):
+        """ 
+        Case-insensitive search for records containing the given query in any of 
+        the following fields: name, phones, emails, birthday, address.
+        """
         results = []
         query_lower = query.lower()
 
@@ -39,12 +43,12 @@ class AddressBook(UserDict):
                     results.append(record)
                     continue
 
-            print("record.address >>>", record.address)
+            if record.birthday is not None:
+                if query_lower in record.birthday.value:
+                    results.append(record)
+                    continue
 
             if record.address is not None:
-            
-                print("query_lower >>>", query_lower)
-                print("record.address.value.lower() >>>", record.address.value.lower())
                 if query_lower in record.address.value.lower():
                     results.append(record)
                     continue
