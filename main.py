@@ -2,13 +2,14 @@ from src.utils import parse_input
 from src.models import AddressBook
 from src.handlers import ( greet, add_birthday, add_contact, show_all_contacts, show_birthday, show_phone, show_upcoming_birthdays, change_contact, )
 from src.info_commands import print_command_list
+from src.animations import running_text_animation
 
 FILENAME = "addressbook.pkl"
 
 
 def main():
     book = AddressBook.load_data(FILENAME)
-    print("Welcome to the assistant bot!")
+    running_text_animation()
     print(f"Loaded {len(book.data)} contacts.")
     print_command_list()
 
