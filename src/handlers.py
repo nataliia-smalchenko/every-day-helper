@@ -171,6 +171,44 @@ def show_upcoming_birthdays(_, book):
     return table
 
 @input_error
+def search_contacts(args, book):
+    """Searches for contacts by various fields."""
+    if not args:
+        raise ValueError("Usage: search_contacts <query>")
+    query = args[0].strip("'").strip()
+    print(query)
+    results = book.search(query)
+    if not results:
+        return "No contacts found for the query."
+
+    table_width = 120
+    table = "=" * table_width + "\n"
+    table += f"| {'Name'.ljust(20)} | {'Phones'.ljust(20)} | {'Emails'.ljust(25)}\
+          | {'Birthday'.ljust(15)} | {'Address'.ljust(24)} |\n"
+    table += "=" * table_width + "\n"
+    for record in results:
+        name = record.name.value.ljust(20)
+        phones = "; ".join(p.value for p in record.phones).ljust(20) \
+            if record.phones else " ".ljust(20)
+        emails = "; ".join(e.value for e in record.emails).ljust(25) \
+            if record.emails else " ".ljust(25)
+        birthday = str(record.birthday).ljust(15) if record.birthday else " ".ljust(15)
+        address = str(record.address).ljust(24) if record.address else " ".ljust(24)
+        table += f"| {name} | {phones} | {emails} | {birthday} | {address} |\n"
+    table += "=" * table_width
+    return table
+
+@input_error
+def delete_contact(args, book):
+    """Deletes a contact by name."""
+    if len(args) != 1:
+        raise ValueError("Usage: delete_contact <name>")
+    name = args[0]
+    book.delete_record(name)
+    book.save_data(ADRRESS_BOOK_FILENAME)
+    return f"Contact with name {name} deleted."
+
+@input_error
 def add_note(args, notes_book):
     """Додає нову нотатку."""
     if len(args) < 2:

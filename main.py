@@ -3,7 +3,8 @@ from src.utils import parse_input
 from src.models.books import AddressBook, NotesBook
 from src.handlers import ( greet, add_birthday, add_contact,
                          show_all_contacts, show_birthday, show_phone,
-                         show_upcoming_birthdays, change_contact,
+                         show_upcoming_birthdays, change_contact, 
+                         search_contacts, delete_contact,
                          add_note, edit_note, delete_note, search_notes,
                          list_notes, add_tag, remove_tag)
 from src.info_commands import print_command_list
@@ -35,6 +36,8 @@ def main():
                 "add_birthday": add_birthday,
                 "show_birthday": show_birthday,
                 "upcoming_birthdays": show_upcoming_birthdays,
+                "search_contacts" : search_contacts, 
+                "delete_contact" : delete_contact, 
             }
 
             handlers_notes = {

@@ -11,22 +11,44 @@ class AddressBook(UserDict):
     def find(self, name):
         return self.data.get(name)
 
+    def delete_record(self, name):
+        if name not in self.data:
+            raise ValueError(f"Contact with name {name} does not exists")
+        self.data.pop(name)
+
     def search(self, query):
         results = []
         query_lower = query.lower()
+
         for record in self.data.values():
             if query_lower in record.name.value.lower():
                 results.append(record)
                 continue
-            if any(query_lower in phone.value for phone in record.phones):
+
+            if all(query_lower in phone.value for phone in record.phones):
                 results.append(record)
                 continue
-            if any(query_lower in email.value.lower() for email in record.emails):
-                results.append(record)
-                continue
-            if any(query_lower in address.value.lower() for address in record.address):
-                results.append(record)
-                continue
+            
+            not_empty_emails = []
+            for email in record.emails:
+                if bool(email.value.strip()):
+                    not_empty_emails.append(email)
+
+            if not_empty_emails:
+                if all(query_lower in email.value.lower() for email in not_empty_emails):
+                    results.append(record)
+                    continue
+
+            print("record.address >>>", record.address)
+
+            if record.address is not None:
+            
+                print("query_lower >>>", query_lower)
+                print("record.address.value.lower() >>>", record.address.value.lower())
+                if query_lower in record.address.value.lower():
+                    results.append(record)
+                    continue
+
         return results
 
     def upcoming_birthdays(self, days=7):
@@ -107,7 +129,6 @@ class NotesBook(UserDict):
                 query_lower in note.text.lower() or
                 any(query_lower in tag.lower() for tag in note.tags)):
                 results.append(note)
-                print(str(note))
         return results
     
     def save_data(self, filename):

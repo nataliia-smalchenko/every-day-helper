@@ -10,11 +10,11 @@ HINTS = {
     "add_contact": {
         "args": 2,
         "optional_args": 3,
-        "hint": ["<name>", "<phone (XXXXXXXXXX)>", "[email]", "[birthday]", "[address]"]
+        "hint": ["<name>", "<phone (XXXXXXXXXX)>", "[email]", "[birthday]", "'[address]'"]
     },
     "change_contact": {
         "args": 3,
-        "hint": ["<name>", ["phone", "birthday", "address", "email"], "<new_value (last srgument)>"]
+        "hint": ["<name>", ["phone", "birthday", "'address'", "email"], "<new_value (last srgument)>"]
     },
     "phone": {
         "args": 1,
