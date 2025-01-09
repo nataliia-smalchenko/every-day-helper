@@ -24,4 +24,3 @@ def input_error(func):
         except KeyError:
             return "Error: Record not found."
     return wrapper
-
