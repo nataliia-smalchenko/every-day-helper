@@ -10,7 +10,7 @@ def greet(args, book):
 @input_error
 def add_contact(args, book):
     if len(args) < 2:
-        raise ValueError("Usage: add <name> <phone> [email] [birthday] [address]")
+        raise ValueError("Usage: add_contact <name> <phone> [email] [birthday] '[address]'")
 
     name, phone, *other = args
     
@@ -30,7 +30,7 @@ def add_contact(args, book):
         birthday = other[1]
     if len(other) > 2 and '@' not in other[2]:
         address = other[2]
-
+    
     record = Record(name)
     book.add_record(record)
  
