@@ -14,4 +14,4 @@ def running_text_animation():
         
         sys.stdout.write('\r')
         
-    print() 
+    print()
