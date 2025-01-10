@@ -7,11 +7,16 @@ from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME, DATE_FORMAT
 
 
 def greet(args, book):
+    """Returns a greeting message."""
     return "How can I help you?"
-
 
 @input_error
 def add_contact(args, book):
+    """
+    Adds a new contact to the address book.
+
+    Usage: add_contact <name> <phone> [email] [birthday] '[address]'
+    """
     if len(args) < 2:
         raise ValueError("Usage: add_contact <name> <phone> [email] [birthday] '[address]'")
 
@@ -56,6 +61,11 @@ def add_contact(args, book):
 
 @input_error
 def change_contact(args, book):
+    """
+    Changes a contact's information.
+
+    Usage: change <name> <field> <new_value>
+    """
     if len(args) < 3:
         raise ValueError("Usage: change <name> <field> <new_value>")
 
@@ -78,9 +88,13 @@ def change_contact(args, book):
 
     return f"{field.capitalize()} updated."
 
-
 @input_error
 def show_phone(args, book):
+    """
+    Displays a contact's phone numbers.
+
+    Usage: show_phone <name>
+    """
     name, *_ = args
     record = book.find(name)
 
@@ -89,9 +103,11 @@ def show_phone(args, book):
         return f"{name}: {phones}"
     return "Contact not found."
 
-
 @input_error
 def show_all_contacts(_, book):
+    """
+    Displays all contacts in a tabular format.
+    """
     if not book.data:
         return "No contacts found."
 
@@ -110,9 +126,13 @@ def show_all_contacts(_, book):
 
     return table
 
-
 @input_error
 def add_email(args, book):
+    """
+    Adds an email to a contact.
+
+    Usage: add_email <name> <email>
+    """
     if len(args) < 2:
         raise ValueError("Usage: add_email <name> <email>")
 
@@ -127,6 +147,11 @@ def add_email(args, book):
 
 @input_error
 def change_email(args, book):
+    """
+    Updates a contact's email.
+
+    Usage: change_email <name> <new_email>
+    """
     if len(args) < 2:
         raise ValueError("Usage: change_email <name> <new_email>")
 
@@ -141,6 +166,11 @@ def change_email(args, book):
 
 @input_error
 def add_birthday(args, book):
+    """
+    Adds a birthday to a contact.
+
+    Usage: add_birthday <name> <birthday>
+    """
     name, birthday, *_ = args
     record = book.find(name)
 
@@ -149,9 +179,13 @@ def add_birthday(args, book):
         return "Birthday added."
     return "Contact not found."
 
-
 @input_error
 def show_birthday(args, book):
+    """
+    Displays a contact's birthday.
+
+    Usage: show_birthday <name>
+    """
     name, *_ = args
     record = book.find(name)
 
@@ -161,17 +195,21 @@ def show_birthday(args, book):
 
 @input_error
 def show_upcoming_birthdays(args, book):
-    """Displays a list of contacts whose birthday is in a given number of days from the current date."""
+    """
+    Displays contacts with birthdays within a given number of days.
+
+    Usage: show_upcoming_birthdays <days>
+    """
     days = int(args[0]) if args else 7   # Default is 7 days
 
     if days < 0:
         raise ValueError("Days must be a positive integer.")
-    
+
     upcoming = book.upcoming_birthdays(days)
 
     if not upcoming:
         return "No upcoming birthdays."
-    
+
     # Sort upcoming birthdays by date
     upcoming.sort(key=lambda x: x[1])
 
@@ -191,7 +229,11 @@ def show_upcoming_birthdays(args, book):
 
 @input_error
 def search_contacts(args, book):
-    """Searches for contacts by various fields."""
+    """
+    Searches for contacts by various fields.
+
+    Usage: search_contacts <query>
+    """
     if not args:
         raise ValueError("Usage: search_contacts <query>")
     query = args[0].strip("'").strip()
@@ -218,17 +260,25 @@ def search_contacts(args, book):
 
 @input_error
 def delete_contact(args, book):
-    """Deletes a contact by name."""
+    """
+    Deletes a contact by name.
+    
+    Usage: delete_contact <name>
+    """
     if len(args) != 1:
         raise ValueError("Usage: delete_contact <name>")
     name = args[0]
     book.delete_record(name)
-    book.save_data(ADRRESS_BOOK_FILENAME)
+    # book.save_data(ADRRESS_BOOK_FILENAME)
     return f"Contact with name {name} deleted."
 
 @input_error
 def add_note(args, notes_book):
-    """Додає нову нотатку."""
+    """
+    Adds a new note to the notes book.
+
+    Usage: add_note <title> <text>
+    """
     if len(args) < 2:
         raise ValueError("Usage: add_note '<title>' '<text>' [tags...]")
 
@@ -238,12 +288,16 @@ def add_note(args, notes_book):
 
     note = Note(title.strip("'\""), text.strip("'\""), [tag.strip("'\"") for tag in tags])
     note_id = notes_book.add_note(note)
-    notes_book.save_data(NOTES_BOOK_FILENAME)
+    # notes_book.save_data(NOTES_BOOK_FILENAME)
     return f"Note added with ID {note_id}."
 
 @input_error
 def edit_note(args, notes_book):
-    """Редагує існуючу нотатку."""
+    """
+    Edits an existing note.
+
+    Usage: edit_note <note_id> '[new_title]' '[new_text]' '[new_tags...]'
+    """
     if len(args) < 2:
         raise ValueError("Usage: edit_note <note_id> '[new_title]' '[new_text]' '[new_tags...]'")
     note_id = float(args[0])
@@ -252,22 +306,30 @@ def edit_note(args, notes_book):
     new_tags = args[3:] if len(args) > 3 else None
 
     notes_book.edit_note(note_id, new_title, new_text, new_tags)
-    notes_book.save_data(NOTES_BOOK_FILENAME)
+    # notes_book.save_data(NOTES_BOOK_FILENAME)
     return f"Note with ID {note_id} updated."
 
 @input_error
 def delete_note(args, notes_book):
-    """Видаляє нотатку за її ID."""
+    """
+    Deletes a note from the notes book.
+
+    Usage: delete_note <note_id>
+    """
     if len(args) != 1:
         raise ValueError("Usage: delete_note <note_id>")
     note_id = float(args[0])
     notes_book.delete_note(note_id)
-    notes_book.save_data(NOTES_BOOK_FILENAME)
+    # notes_book.save_data(NOTES_BOOK_FILENAME)
     return f"Note with ID {note_id} deleted."
 
 @input_error
 def search_notes(args, notes_book):
-    """Шукає нотатки за ключовим словом."""
+    """
+    Looks for the notes behind the keyword.
+
+    Usage: search_notes <query>
+    """
     if not args:
         raise ValueError("Usage: search_notes <query>")
     query = " ".join(args)
@@ -278,7 +340,9 @@ def search_notes(args, notes_book):
 
 @input_error
 def list_notes(args, notes_book):
-    """Список всіх нотаток."""
+    """
+    Displays all notes in a tabular format.
+    """
     if not notes_book.data:
         return "No notes available."
     return (
@@ -288,7 +352,11 @@ def list_notes(args, notes_book):
 
 @input_error
 def add_tag(args, notes_book):
-    """Додає тег до нотатки."""
+    """
+    Adds the tag to the exist note.
+
+    Usage: add_tag <note_id> <tag>
+    """
     if len(args) < 2:
         raise ValueError("Usage: add_tag <note_id> <tag>")
     note_id = float(args[0])
@@ -297,12 +365,16 @@ def add_tag(args, notes_book):
     if not note:
         raise ValueError("Note not found.")
     note.add_tag(tag)
-    notes_book.save_data(NOTES_BOOK_FILENAME)
+    # notes_book.save_data(NOTES_BOOK_FILENAME)
     return f"Tag '{tag}' added to note with ID {note_id}."
 
 @input_error
 def remove_tag(args, notes_book):
-    """Видаляє тег з нотатки."""
+    """
+    Delet the tag to the exist note.
+
+    Usage: remove_tag <note_id> <tag>
+    """
     if len(args) < 2:
         raise ValueError("Usage: remove_tag <note_id> <tag>")
     note_id = float(args[0])
@@ -313,5 +385,5 @@ def remove_tag(args, notes_book):
     if not note:
         raise ValueError("Note not found.")
     note.remove_tag(tag)
-    notes_book.save_data(NOTES_BOOK_FILENAME)
+    # notes_book.save_data(NOTES_BOOK_FILENAME)
     return f"Tag '{tag}' removed from note with ID {note_id}."
