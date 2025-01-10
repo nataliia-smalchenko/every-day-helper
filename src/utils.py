@@ -1,3 +1,4 @@
+from prompt_toolkit import print_formatted_text, HTML
 import shlex
 import re
 
@@ -5,7 +6,7 @@ def parse_input(user_input):
     try:
         parts = shlex.split(user_input.strip())
     except ValueError as e:
-        print(f"Error parsing input: {e}")
+        print_formatted_text(HTML(f"<ansired>Error parsing input: {e}</ansired>"))
         return None, []
     if not parts:
         return None, []
@@ -19,11 +20,11 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except ValueError as e:
-            return f"Error: {e}"
+            print_formatted_text(HTML(f"<ansired>Error: {e}</ansired>"))
         except IndexError:
-            return "Error: Missing arguments."
+            print_formatted_text(HTML("<ansired>Error: Missing arguments.</ansired>"))
         except KeyError:
-            return "Error: Record not found."
+            print_formatted_text(HTML("<ansired>Error: Record not found.</ansired>"))
     return wrapper
 
 def is_valid_date(date):
