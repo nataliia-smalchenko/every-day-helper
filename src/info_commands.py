@@ -35,6 +35,5 @@ def print_command_list(show_all=False):
 
     table_data = [[cmd['command'], cmd['description']] for cmd in commands_to_show]
 
-    print(table_data)
     print("List of available commands:")
     print(draw_table(headers, table_data))
