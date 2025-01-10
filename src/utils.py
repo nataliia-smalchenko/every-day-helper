@@ -1,4 +1,4 @@
-from colorama import Fore, Style
+from prompt_toolkit import print_formatted_text, HTML
 import shlex
 import re
 
@@ -6,7 +6,7 @@ def parse_input(user_input):
     try:
         parts = shlex.split(user_input.strip())
     except ValueError as e:
-        print(f"{Fore.RED}Error parsing input: {e}{Style.RESET_ALL}")
+        print_formatted_text(HTML(f"<ansired>Error parsing input: {e}</ansired>"))
         return None, []
     if not parts:
         return None, []
@@ -20,11 +20,11 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except ValueError as e:
-            return f"{Fore.RED}Error: {e}{Style.RESET_ALL}"
+            print_formatted_text(HTML(f"<ansired>Error: {e}</ansired>"))
         except IndexError:
-            return "{Fore.RED}Error: Missing arguments.{Style.RESET_ALL}"
+            print_formatted_text(HTML("<ansired>Error: Missing arguments.</ansired>"))
         except KeyError:
-            return "{Fore.RED}Error: Record not found.{Style.RESET_ALL}"
+            print_formatted_text(HTML("<ansired>Error: Record not found.</ansired>"))
     return wrapper
 
 def is_valid_date(date):
