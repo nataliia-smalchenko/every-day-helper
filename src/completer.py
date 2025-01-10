@@ -78,6 +78,18 @@ HINTS = {
         "args": 2,
         "hint": ["<note id>", "<tag>"]
     },
+    "close": {
+        "args": 0,
+        "hint": None
+    },
+    "exit": {
+        "args": 0,
+        "hint": None
+    },
+    "show_all_commands": {
+        "args": 0,
+        "hint": None
+    },
 }
 
 # Styles for lexer
