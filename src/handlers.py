@@ -3,10 +3,11 @@ from tabulate import tabulate
 from src.utils import input_error, is_valid_date
 from src.models.record import Record
 from src.models.note import Note
-from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME, DATE_FORMAT
+from settings import DATE_FORMAT
+# from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME
 
 
-def greet(args, book):
+def greet(_, __):
     """Returns a greeting message."""
     return "How can I help you?"
 
@@ -21,14 +22,14 @@ def add_contact(args, book):
         raise ValueError("Usage: add_contact <name> <phone> [email] [birthday] '[address]'")
 
     name, phone, *other = args
-    
+
     if not phone.isdigit() or len(phone) != 10:
         raise ValueError("Phone number must consist of exactly 10 digits.")
-    
+
     email = None
     birthday = None
     address = None
-    
+
     if book.find(name):
         return f"Contact with name '{name}' already exists."
 
@@ -37,15 +38,15 @@ def add_contact(args, book):
     if len(other) > 1 and '@' not in other[1]:
         birthday = other[1]
     if len(other) > 2 and '@' not in other[2]:
-        
         address = other[2]
     if birthday and not is_valid_date(birthday):
-        return "Invalid date format. Use DD.MM.YYYY."    
-    
+        return "Invalid date format. Use DD.MM.YYYY."
+
     record = Record(name)
     book.add_record(record)
- 
-    contact_info = f"Name: {name}, Phone: {phone}, Email: {email if email else ' '}, Birthday: {birthday if birthday else ' '}, Address: {address if address else ' '}"
+
+    contact_info = f"Name: {name}, Phone: {phone}, Email: {email if email else ' '}, \
+        Birthday: {birthday if birthday else ' '}, Address: {address if address else ' '}"
     message = f"Contact added. Details: {contact_info}"
 
     if phone:
@@ -146,25 +147,6 @@ def add_email(args, book):
     return "Contact not found."
 
 @input_error
-def change_email(args, book):
-    """
-    Updates a contact's email.
-
-    Usage: change_email <name> <new_email>
-    """
-    if len(args) < 2:
-        raise ValueError("Usage: change_email <name> <new_email>")
-
-    name, new_email = args
-    record = book.find(name)
-
-    if record:
-        record.add_email(new_email)
-        return f"Email '{new_email}' updated."
-
-    return "Contact not found."
-
-@input_error
 def add_birthday(args, book):
     """
     Adds a birthday to a contact.
@@ -218,7 +200,7 @@ def show_upcoming_birthdays(args, book):
         name = record.name.value
         phones = "; ".join(p.value for p in record.phones) if record.phones else "No phone"
         emails = "; ".join(e.value for e in record.emails) if record.emails else "No email"
-        birthday_str = birthday.strftime(DATE_FORMAT).ljust(14)  
+        birthday_str = birthday.strftime(DATE_FORMAT).ljust(14)
         address = str(record.address) if record.address else "No address"
         data.append([name, phones, emails, birthday_str, address])
 
@@ -339,7 +321,7 @@ def search_notes(args, notes_book):
     return f"{'n'.join(str(note) for note in results)}"
 
 @input_error
-def list_notes(args, notes_book):
+def list_notes(_, notes_book):
     """
     Displays all notes in a tabular format.
     """
