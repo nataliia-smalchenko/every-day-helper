@@ -1,7 +1,11 @@
+"""Custom command-line autocompleter module for a CLI tool."""
+import shlex
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.document import Document
+from prompt_toolkit.lexers import Lexer
+from prompt_toolkit.styles import Style
 
-# hints dictionary
+# hints dictionary for completer
 HINTS = {
     "hello": {
         "args": 0,
@@ -14,7 +18,7 @@ HINTS = {
     },
     "change_contact": {
         "args": 3,
-        "hint": ["<name>", ["phone", "birthday", "'address'", "email"], "<new_value (last srgument)>"]
+        "hint": ["<name>", ["phone", "birthday", "'address'", "email"], "<new value>"]
     },
     "phone": {
         "args": 1,
@@ -34,7 +38,7 @@ HINTS = {
     },
     "add_birthday": {
         "args": 2,
-        "hint": ["<name>", "<new birthday DD.MM.YYYY (last srgument)>"]
+        "hint": ["<name>", "<new birthday DD.MM.YYYY>"]
     },
     "show_birthday": {
         "args": 1,
@@ -52,7 +56,7 @@ HINTS = {
     "edit_note": {
         "args": 1,
         "optional_args": 3,
-        "hint": ["<note id>", "'[new_title]'",  "'[new_text]'", "'[new_tags...]'"]
+        "hint": ["<note id>", "'[new title]'",  "'[new text]'", "'[new tags...]'"]
     },
     "delete_note": {
         "args": 1,
@@ -68,23 +72,68 @@ HINTS = {
     },
     "add_tag": {
         "args": 2,
-        "hint": ["<note_id>", "<tag>"]
+        "hint": ["<note id>", "<tag>"]
     },
     "remove_tag": {
         "args": 2,
-        "hint": ["<note_id>", "<tag>"]
+        "hint": ["<note id>", "<tag>"]
     },
 }
 
+# Styles for lexer
+STYLE = Style.from_dict({
+    "prompt": "bold fg:skyblue",
+    "command": "bold fg:green", 
+    "text": "fg:darkblue", 
+    'completion-menu.completion': 'bg:lightsteelblue #000000',
+    'completion-menu.completion.current': 'bold bg:#000000 cadetblue',
+    'scrollbar.background': 'bg:#88aaaa',
+    'scrollbar.button': 'bg:cadetblue',
+})
+
 class CustomCompleter(Completer):
+    """A subclass of `prompt_toolkit.completion.Completer` for custom completions."""
+    def __init__(self, hints):
+        """
+        Initialize the lexer with a dictionary of commands.
+        Args:
+            hints (dict): A dictionary of commands and their arguments.
+        """
+        self.hints = hints
+
+    def _get_words(self, text, document):
+        """
+        Returns a list of the entered words or expressions and whether the 
+        quotation marks are closed in the expression.
+        """
+        # Use shlex.split but handle incomplete quotes gracefully
+        try:
+            is_quotes_closed = text.count("'") % 2 == 0
+            if is_quotes_closed:
+                words = shlex.split(text, posix=True)
+            else:
+                words = shlex.split(text + "'", posix=True)
+                if document.text.endswith(" "):
+                    words = words[:-1]
+        except ValueError:
+            # If there's an unclosed quote, split text manually
+            words = document.text.strip().split()
+        return words, is_quotes_closed
 
     def get_completions(self, document: Document, _):
-        words = document.text.split()
+        """
+        Provide completions for the given document.
+
+        Handles command completions, arguments, and optional arguments with 
+        support for unclosed quotes.
+        """
+        text = document.text.strip()
+        words, is_quotes_closed = self._get_words(text, document)
 
         # Handle the first word (commands)
         if len(words) == 0 or (len(words) == 1 and not document.text.endswith(" ")):
-            for command in HINTS:
-                if command.startswith(document.text):
+            for command in self.hints:
+                if command.startswith(document.text.lower()):
                     yield Completion(command, start_position=-len(document.text))
             return
 
@@ -93,7 +142,7 @@ class CustomCompleter(Completer):
             return
 
         command = words[0]
-        command_info = HINTS.get(command)
+        command_info = self.hints.get(command)
 
         # Return if the command is unknown
         if not command_info:
@@ -116,6 +165,9 @@ class CustomCompleter(Completer):
             else hints[current_arg_count - 1]
         )
 
+        if is_quotes_closed and current_arg_count == max_args and document.text.endswith(" "):
+            return
+
         # Handle hints that are lists
         if isinstance(current_hint, list):
             last_word = words[-1] if not document.text.endswith(" ") else ""
@@ -127,3 +179,37 @@ class CustomCompleter(Completer):
         # Handle hints that are strings
         if isinstance(current_hint, str):
             yield Completion(current_hint, display=current_hint, start_position=0)
+
+
+class CustomLexer(Lexer):
+    """Custom lexer to colorize commands and arguments."""
+
+    def __init__(self, commands):
+        """
+        Initialize the lexer with a dictionary of commands.
+        Args:
+            commands (dict): A dictionary of commands and their arguments.
+        """
+        self.commands = commands
+
+    def lex_document(self, document: Document):
+        """
+        Return a function that takes a line index and produces tokens for that line.
+        Args:
+            document (Document): The document being edited.
+        """
+        text = document.text.strip().split()
+
+        def get_line_tokens(_):
+            """Return the tokens for the given line."""
+            tokens = []
+            for index, word in enumerate(text):
+                if index == 0 and word in self.commands:
+                    # Highlight the command (e.g., green)
+                    tokens.append(("class:command", word + " "))
+                else:
+                    # Default styling for unrecognized text
+                    tokens.append(("class:text", word + " "))
+            return tokens
+
+        return get_line_tokens

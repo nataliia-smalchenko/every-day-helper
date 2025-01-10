@@ -9,14 +9,14 @@ from src.handlers import ( greet, add_birthday, add_contact,
                          list_notes, add_tag, remove_tag)
 from src.info_commands import print_command_list
 from src.animations import running_text_animation
-from src.completer import CustomCompleter
+from src.completer import CustomCompleter, CustomLexer, STYLE, HINTS
 from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME
 
 def main():
     adrress_book = AddressBook.load_data(ADRRESS_BOOK_FILENAME)
     notes_book = NotesBook.load_data(NOTES_BOOK_FILENAME)
 
-    session = PromptSession(completer=CustomCompleter())
+    session = PromptSession(lexer=CustomLexer(HINTS), completer=CustomCompleter(HINTS), style=STYLE)
     running_text_animation()
     print(f"Loaded {len(adrress_book.data)} contacts.")
     print(f"Loaded {len(notes_book.data)} contacts.")
@@ -24,7 +24,7 @@ def main():
 
     while True:
         try:
-            user_input = session.prompt(">>> ")
+            user_input = session.prompt([("class:prompt", ">>> ")])
             command, args = parse_input(user_input)
 
             handlers_contacts = {
