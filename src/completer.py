@@ -2,8 +2,10 @@
 import shlex
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.document import Document
+from prompt_toolkit.lexers import Lexer
+from prompt_toolkit.styles import Style
 
-# hints dictionary
+# hints dictionary for completer
 HINTS = {
     "hello": {
         "args": 0,
@@ -78,10 +80,28 @@ HINTS = {
     },
 }
 
+# Styles for lexer
+STYLE = Style.from_dict({
+    "prompt": "bold fg:skyblue",
+    "command": "bold fg:green", 
+    "text": "fg:darkblue", 
+})
+
 class CustomCompleter(Completer):
     """A subclass of `prompt_toolkit.completion.Completer` for custom completions."""
+    def __init__(self, hints):
+        """
+        Initialize the lexer with a dictionary of commands.
+        Args:
+            hints (dict): A dictionary of commands and their arguments.
+        """
+        self.hints = hints
+
     def _get_words(self, text, document):
-        """Returns a list of entered words or expressions."""
+        """
+        Returns a list of the entered words or expressions and whether the 
+        quotation marks are closed in the expression.
+        """
         # Use shlex.split but handle incomplete quotes gracefully
         try:
             is_quotes_closed = text.count("'") % 2 == 0
@@ -108,7 +128,7 @@ class CustomCompleter(Completer):
 
         # Handle the first word (commands)
         if len(words) == 0 or (len(words) == 1 and not document.text.endswith(" ")):
-            for command in HINTS:
+            for command in self.hints:
                 if command.startswith(document.text.lower()):
                     yield Completion(command, start_position=-len(document.text))
             return
@@ -118,7 +138,7 @@ class CustomCompleter(Completer):
             return
 
         command = words[0]
-        command_info = HINTS.get(command)
+        command_info = self.hints.get(command)
 
         # Return if the command is unknown
         if not command_info:
@@ -153,3 +173,37 @@ class CustomCompleter(Completer):
         # Handle hints that are strings
         if isinstance(current_hint, str):
             yield Completion(current_hint, display=current_hint, start_position=0)
+
+
+class CustomLexer(Lexer):
+    """Custom lexer to colorize commands and arguments."""
+
+    def __init__(self, commands):
+        """
+        Initialize the lexer with a dictionary of commands.
+        Args:
+            commands (dict): A dictionary of commands and their arguments.
+        """
+        self.commands = commands
+
+    def lex_document(self, document: Document):
+        """
+        Return a function that takes a line index and produces tokens for that line.
+        Args:
+            document (Document): The document being edited.
+        """
+        text = document.text.strip().split()
+
+        def get_line_tokens(_):
+            """Return the tokens for the given line."""
+            tokens = []
+            for index, word in enumerate(text):
+                if index == 0 and word in self.commands:
+                    # Highlight the command (e.g., green)
+                    tokens.append(("class:command", word + " "))
+                else:
+                    # Default styling for unrecognized text
+                    tokens.append(("class:text", word + " "))
+            return tokens
+
+        return get_line_tokens
