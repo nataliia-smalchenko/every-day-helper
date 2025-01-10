@@ -1,7 +1,10 @@
-from src.utils import input_error
+from tabulate import tabulate
+
+from src.utils import input_error, is_valid_date
 from src.models.record import Record
 from src.models.note import Note
 from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME, DATE_FORMAT
+
 
 def greet(args, book):
     return "How can I help you?"
@@ -29,12 +32,16 @@ def add_contact(args, book):
     if len(other) > 1 and '@' not in other[1]:
         birthday = other[1]
     if len(other) > 2 and '@' not in other[2]:
+        
         address = other[2]
+    if birthday and not is_valid_date(birthday):
+        return "Invalid date format. Use DD.MM.YYYY."    
     
     record = Record(name)
     book.add_record(record)
  
-    message = f"Contact '{name}' added."
+    contact_info = f"Name: {name}, Phone: {phone}, Email: {email if email else ' '}, Birthday: {birthday if birthday else ' '}, Address: {address if address else ' '}"
+    message = f"Contact added. Details: {contact_info}"
 
     if phone:
         record.add_phone(phone)
@@ -82,23 +89,25 @@ def show_phone(args, book):
         return f"{name}: {phones}"
     return "Contact not found."
 
+
 @input_error
 def show_all_contacts(_, book):
     if not book.data:
         return "No contacts found."
-    
-    table_width = 120
-    table = "=" * table_width + "\n"
-    table += f"| {'Name'.ljust(20)} | {'Phones'.ljust(20)} | {'Emails'.ljust(25)} | {'Birthday'.ljust(15)} | {'Address'.ljust(24)} |\n"
-    table += "=" * table_width + "\n"
+
+    data = []
     for record in book.data.values():
-        name = record.name.value.ljust(20)
-        phones = "; ".join(p.value for p in record.phones).ljust(20) if record.phones else " ".ljust(20)
-        emails = "; ".join(e.value for e in record.emails).ljust(25) if record.emails else " ".ljust(25)
-        birthday = str(record.birthday).ljust(15) if record.birthday else " ".ljust(15)
-        address = str(record.address).ljust(24) if record.address else " ".ljust(24)
-        table += f"| {name} | {phones} | {emails} | {birthday} | {address} |\n"
-    table += "=" * table_width
+        name = record.name.value
+        phones = "; ".join(p.value for p in record.phones) if record.phones else " "
+        emails = "; ".join(e.value for e in record.emails) if record.emails else " "
+        birthday = str(record.birthday) if record.birthday else " "
+        address = str(record.address) if record.address else " "
+        data.append([name, phones, emails, birthday, address])
+
+    headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
+
+    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left")
+
     return table
 
 
@@ -166,17 +175,15 @@ def show_upcoming_birthdays(args, book):
     # Sort upcoming birthdays by date
     upcoming.sort(key=lambda x: x[1])
 
-    table_width = 40
-    table = "=" * table_width + "\n"
-    table += f"| {'Name'.ljust(20)} | {'Birthday'.ljust(14)} |\n"
-    table += "=" * table_width + "\n"
-
+    data = []
     for record, birthday in upcoming:
-        name = record.name.value.ljust(20)
+        name = record.name.value
         birthday_str = birthday.strftime(DATE_FORMAT).ljust(14)  
-        table += f"| {name} | {birthday_str} |\n"
+        data.append([name, birthday_str])
 
-    table += "=" * table_width
+    headers = ["Name", "Birthday"]
+
+    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left")
     return table
 
 @input_error
