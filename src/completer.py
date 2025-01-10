@@ -85,6 +85,10 @@ STYLE = Style.from_dict({
     "prompt": "bold fg:skyblue",
     "command": "bold fg:green", 
     "text": "fg:darkblue", 
+    'completion-menu.completion': 'bg:lightsteelblue #000000',
+    'completion-menu.completion.current': 'bold bg:#000000 cadetblue',
+    'scrollbar.background': 'bg:#88aaaa',
+    'scrollbar.button': 'bg:cadetblue',
 })
 
 class CustomCompleter(Completer):
