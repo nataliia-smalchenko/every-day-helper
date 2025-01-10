@@ -1,3 +1,4 @@
+from tabulate import tabulate
 from src.utils import input_error
 from src.models.record import Record
 from src.models.note import Note
@@ -166,17 +167,18 @@ def show_upcoming_birthdays(args, book):
     # Sort upcoming birthdays by date
     upcoming.sort(key=lambda x: x[1])
 
-    table_width = 40
-    table = "=" * table_width + "\n"
-    table += f"| {'Name'.ljust(20)} | {'Birthday'.ljust(14)} |\n"
-    table += "=" * table_width + "\n"
-
+    data = []
     for record, birthday in upcoming:
-        name = record.name.value.ljust(20)
+        name = record.name.value
+        phones = "; ".join(p.value for p in record.phones) if record.phones else "No phone"
+        emails = "; ".join(e.value for e in record.emails) if record.emails else "No email"
         birthday_str = birthday.strftime(DATE_FORMAT).ljust(14)  
-        table += f"| {name} | {birthday_str} |\n"
+        address = str(record.address) if record.address else "No address"
+        data.append([name, phones, emails, birthday_str, address])
 
-    table += "=" * table_width
+    headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
+
+    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left")
     return table
 
 @input_error
