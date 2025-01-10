@@ -13,6 +13,15 @@ from src.completer import CustomCompleter, CustomLexer, STYLE, HINTS
 from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME
 
 def main():
+    """
+    Main function to run the application.
+
+    - Loads data for the address book and notes book.
+    - Initializes the command-line interface with a custom prompt.
+    - Provides command handlers for managing contacts and notes.
+    - Supports commands like adding, editing, deleting, and searching data.
+    - Handles exit commands and saves data before exiting.
+    """
     adrress_book = AddressBook.load_data(ADRRESS_BOOK_FILENAME)
     notes_book = NotesBook.load_data(NOTES_BOOK_FILENAME)
 
@@ -64,8 +73,12 @@ def main():
                 print("Invalid command.")
         
         except KeyboardInterrupt:
+            adrress_book.save_data(ADRRESS_BOOK_FILENAME)
+            notes_book.save_data(NOTES_BOOK_FILENAME)
             break
         except EOFError:
+            adrress_book.save_data(ADRRESS_BOOK_FILENAME)
+            notes_book.save_data(NOTES_BOOK_FILENAME)
             break
 
 if __name__ == "__main__":
