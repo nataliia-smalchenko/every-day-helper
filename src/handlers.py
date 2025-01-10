@@ -1,5 +1,4 @@
 from tabulate import tabulate
-
 from src.utils import input_error, is_valid_date
 from src.models.record import Record
 from src.models.note import Note
@@ -35,7 +34,7 @@ def add_contact(args, book):
         
         address = other[2]
     if birthday and not is_valid_date(birthday):
-        return "Invalid date format. Use DD.MM.YYYY."    
+        raise ValueError("Invalid date format. Use DD.MM.YYYY.")    
     
     record = Record(name)
     book.add_record(record)
@@ -91,7 +90,7 @@ def show_phone(args, book):
 
 
 @input_error
-def show_all_contacts(_, book):
+def show_all_contacts(_, book, max_col_width=30):
     if not book.data:
         return "No contacts found."
 
@@ -106,7 +105,7 @@ def show_all_contacts(_, book):
 
     headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
 
-    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left")
+    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left", maxcolwidths=[max_col_width] * len(headers))
 
     return table
 
@@ -160,7 +159,7 @@ def show_birthday(args, book):
     return "No birthday found for this contact."
 
 @input_error
-def show_upcoming_birthdays(args, book):
+def show_upcoming_birthdays(args, book, max_col_width=30):
     """Displays a list of contacts whose birthday is in a given number of days from the current date."""
     days = int(args[0]) if args else 7   # Default is 7 days
 
@@ -186,11 +185,11 @@ def show_upcoming_birthdays(args, book):
 
     headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
 
-    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left")
+    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left", maxcolwidths=[max_col_width] * len(headers))
     return table
 
-@input_error
-def search_contacts(args, book):
+
+def search_contacts(args, book, max_col_width=30):
     """Searches for contacts by various fields."""
     if not args:
         raise ValueError("Usage: search_contacts <query>")
@@ -199,22 +198,19 @@ def search_contacts(args, book):
     if not results:
         return "No contacts found for the query."
 
-    table_width = 120
-    table = "=" * table_width + "\n"
-    table += f"| {'Name'.ljust(20)} | {'Phones'.ljust(20)} | {'Emails'.ljust(25)}\
-          | {'Birthday'.ljust(15)} | {'Address'.ljust(24)} |\n"
-    table += "=" * table_width + "\n"
+    table_data = []
+    headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
+
     for record in results:
-        name = record.name.value.ljust(20)
-        phones = "; ".join(p.value for p in record.phones).ljust(20) \
-            if record.phones else " ".ljust(20)
-        emails = "; ".join(e.value for e in record.emails).ljust(25) \
-            if record.emails else " ".ljust(25)
-        birthday = str(record.birthday).ljust(15) if record.birthday else " ".ljust(15)
-        address = str(record.address).ljust(24) if record.address else " ".ljust(24)
-        table += f"| {name} | {phones} | {emails} | {birthday} | {address} |\n"
-    table += "=" * table_width
-    return table
+        name = record.name.value if record.name else ""
+        phones = "; ".join(p.value for p in record.phones) if record.phones else ""
+        emails = "; ".join(e.value for e in record.emails) if record.emails else ""
+        birthday = str(record.birthday) if record.birthday else ""
+        address = str(record.address) if record.address else ""
+        table_data.append([name, phones, emails, birthday, address])
+
+    return tabulate(table_data, headers=headers, tablefmt="rounded_outline", maxcolwidths=[max_col_width] * len(headers))
+
 
 @input_error
 def delete_contact(args, book):
