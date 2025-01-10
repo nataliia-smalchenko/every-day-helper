@@ -281,7 +281,10 @@ def list_notes(args, notes_book):
     """Список всіх нотаток."""
     if not notes_book.data:
         return "No notes available."
-    return str(notes_book)
+    return (
+        "---------------------------\n"
+        f"{str(notes_book)}"
+    )
 
 @input_error
 def add_tag(args, notes_book):
