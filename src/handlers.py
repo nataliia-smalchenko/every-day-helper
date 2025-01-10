@@ -1,7 +1,7 @@
 from src.utils import input_error
 from src.models.record import Record
 from src.models.note import Note
-from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME
+from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME, DATE_FORMAT
 
 def greet(args, book):
     return "How can I help you?"
@@ -151,21 +151,30 @@ def show_birthday(args, book):
     return "No birthday found for this contact."
 
 @input_error
-def show_upcoming_birthdays(_, book):
-    upcoming = book.upcoming_birthdays()
+def show_upcoming_birthdays(args, book):
+    """Displays a list of contacts whose birthday is in a given number of days from the current date."""
+    days = int(args[0]) if args else 7   # Default is 7 days
+
+    if days < 0:
+        raise ValueError("Days must be a positive integer.")
+    
+    upcoming = book.upcoming_birthdays(days)
 
     if not upcoming:
         return "No upcoming birthdays."
+    
+    # Sort upcoming birthdays by date
+    upcoming.sort(key=lambda x: x[1])
 
     table_width = 40
     table = "=" * table_width + "\n"
     table += f"| {'Name'.ljust(20)} | {'Birthday'.ljust(14)} |\n"
     table += "=" * table_width + "\n"
 
-    for record in upcoming:
+    for record, birthday in upcoming:
         name = record.name.value.ljust(20)
-        birthday = str(record.birthday).ljust(14)
-        table += f"| {name} | {birthday} |\n"
+        birthday_str = birthday.strftime(DATE_FORMAT).ljust(14)  
+        table += f"| {name} | {birthday_str} |\n"
 
     table += "=" * table_width
     return table
