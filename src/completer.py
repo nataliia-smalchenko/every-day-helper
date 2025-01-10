@@ -101,7 +101,7 @@ class CustomCompleter(Completer):
 
         # Check if more arguments can be entered
         current_arg_count = len(words) - 1
-        max_args = command_info["args"] + command_info.get("optional_args", 0)
+        max_args = command_info.get("args", 0) + command_info.get("optional_args", 0)
         if current_arg_count > max_args:
             return
 

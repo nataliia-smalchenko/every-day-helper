@@ -3,7 +3,7 @@ from tabulate import tabulate
 from src.utils import input_error, is_valid_date
 from src.models.record import Record
 from src.models.note import Note
-from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME
+from settings import ADRRESS_BOOK_FILENAME, NOTES_BOOK_FILENAME, DATE_FORMAT
 
 
 def greet(args, book):
@@ -160,22 +160,33 @@ def show_birthday(args, book):
     return "No birthday found for this contact."
 
 @input_error
-def show_upcoming_birthdays(_, book):
-    upcoming = book.upcoming_birthdays()
+def show_upcoming_birthdays(args, book):
+    """Displays a list of contacts whose birthday is in a given number of days from the current date."""
+    days = int(args[0]) if args else 7   # Default is 7 days
+
+    if days < 0:
+        raise ValueError("Days must be a positive integer.")
+    
+    upcoming = book.upcoming_birthdays(days)
 
     if not upcoming:
         return "No upcoming birthdays."
+    
+    # Sort upcoming birthdays by date
+    upcoming.sort(key=lambda x: x[1])
 
     data = []
-    for record in upcoming:
+    for record, birthday in upcoming:
         name = record.name.value
-        birthday = str(record.birthday)
-        data.append([name, birthday])
+        phones = "; ".join(p.value for p in record.phones) if record.phones else "No phone"
+        emails = "; ".join(e.value for e in record.emails) if record.emails else "No email"
+        birthday_str = birthday.strftime(DATE_FORMAT).ljust(14)  
+        address = str(record.address) if record.address else "No address"
+        data.append([name, phones, emails, birthday_str, address])
 
-    headers = ["Name", "Birthday"]
+    headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
 
     table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left")
-
     return table
 
 @input_error
