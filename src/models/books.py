@@ -56,31 +56,30 @@ class AddressBook(UserDict):
         return results
 
     def upcoming_birthdays(self, days=7):
-        try:
-            days = int(input("Enter the number of days to search for birthdays: "))
-            if days < 0:
-                raise ValueError("The number of days must be a positive number")
-        except ValueError:
-            raise ValueError("Please enter a valid number.")
-
-        today = datetime.today()
+        """
+        Display a list of contacts whose birthday is in a given number of days from the current date.
+        
+        :param days: Number of days to search for upcoming birthdays. Default is 7.
+        """
+        today = datetime.today().date()
         end_date = today + timedelta(days=days)
         upcoming_birthdays_list = []
 
         for record in self.data.values():
-            if record.birthday:
+            if hasattr(record, 'birthday') and record.birthday:
+                # Ensure the birthday is a date object
+                birthday_str = record.birthday.value
+                birthday = datetime.strptime(birthday_str, DATE_FORMAT).date()
 
-                birthday = datetime.strptime(record.birthday.value, DATE_FORMAT)
-                birthday = birthday.replace(year=today.year)
+                birthday_this_year = birthday.replace(year=today.year)
+                if birthday_this_year < today:
+                    birthday_this_year = birthday_this_year.replace(year=today.year + 1)
 
-                if birthday < today:
-                    birthday = birthday.replace(year=today.year + 1)
-
-                if today <= birthday <= end_date:
-                    upcoming_birthdays_list.append(record)
+                if today <= birthday_this_year <= end_date:
+                    upcoming_birthdays_list.append((record, birthday_this_year))
 
         return upcoming_birthdays_list
-   
+    
     def save_data(self, filename):
         with open(filename, "wb") as f:
             pickle.dump(self, f)

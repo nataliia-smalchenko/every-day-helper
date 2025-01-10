@@ -1,4 +1,5 @@
 import shlex
+import re
 
 def parse_input(user_input):
     try:
@@ -24,3 +25,8 @@ def input_error(func):
         except KeyError:
             return "Error: Record not found."
     return wrapper
+
+def is_valid_date(date):
+    
+    date_pattern = r'^([0-2]?[0-9]|3[0-1])\.(0[1-9]|1[0-2])\.\d{4}$'
+    return bool(re.match(date_pattern, date))
