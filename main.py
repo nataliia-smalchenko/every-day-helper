@@ -3,7 +3,7 @@ from src.utils import parse_input
 from src.models.books import AddressBook, NotesBook
 from src.handlers import ( greet, add_birthday, add_contact,
                          show_all_contacts, show_birthday, show_phone,
-                         show_upcoming_birthdays, change_contact, 
+                         show_upcoming_birthdays, change_contact,
                          search_contacts, delete_contact,
                          add_note, edit_note, delete_note, search_notes,
                          list_notes, add_tag, remove_tag)
@@ -72,7 +72,7 @@ def main():
                 print(handlers_notes[command](args, notes_book))
             else:
                 print("Invalid command.")
-        
+
         except KeyboardInterrupt:
             adrress_book.save_data(ADRRESS_BOOK_FILENAME)
             notes_book.save_data(NOTES_BOOK_FILENAME)

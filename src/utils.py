@@ -1,6 +1,10 @@
-from prompt_toolkit import print_formatted_text, HTML
+from textwrap import wrap
 import shlex
 import re
+
+from prompt_toolkit import print_formatted_text, HTML
+from prettytable import HRuleStyle, PrettyTable
+
 
 
 def parse_input(user_input):
@@ -50,3 +54,46 @@ def is_valid_date(date):
     """
     date_pattern = r'^([0-2]?[0-9]|3[0-1])\.(0[1-9]|1[0-2])\.\d{4}$'
     return bool(re.match(date_pattern, date))
+
+def draw_table(headers, data, maxcolwidths=None, allhlines=False):
+    """
+    Generate a formatted table using PrettyTable.
+
+    :param headers (list): Column headers.
+    :param data (list of lists): Table rows.
+    :param maxcolwidths (list, optional): Max width for each column.
+    :param allhlines (bool, optional): Draw horizontal lines for all rows. Default is False.
+
+    :return: PrettyTable: A formatted table.
+    """
+    hrules = HRuleStyle.ALL if allhlines else HRuleStyle.FRAME
+
+    table = PrettyTable(
+        vertical_char="│",
+        horizontal_char="─",
+        junction_char="┼",
+        top_junction_char="┬",
+        bottom_junction_char="┴",
+        right_junction_char="┤",
+        left_junction_char="├",
+        top_right_junction_char="╮",
+        top_left_junction_char="╭",
+        bottom_right_junction_char="╯",
+        bottom_left_junction_char="╰",
+        hrules=hrules,
+        align="l",
+    )
+
+    table.field_names = headers
+
+    if maxcolwidths and data:
+        cleared_data = []
+        for line in data:
+            cleared_data.append(
+                ["\n".join(wrap(item, width=maxcolwidths[i])) for i, item in enumerate(line)]
+            )
+        table.add_rows(cleared_data)
+    else:
+        table.add_rows(data)
+
+    return table

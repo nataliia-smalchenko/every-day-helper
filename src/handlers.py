@@ -1,5 +1,4 @@
-from tabulate import tabulate
-from src.utils import input_error, is_valid_date
+from src.utils import input_error, is_valid_date, draw_table
 from src.models.record import Record
 from src.models.note import Note
 from settings import DATE_FORMAT
@@ -39,8 +38,8 @@ def add_contact(args, book):
     if len(other) > 2 and '@' not in other[2]:
         address = other[2]
     if birthday and not is_valid_date(birthday):
-        raise ValueError("Invalid date format. Use DD.MM.YYYY.")    
-    
+        raise ValueError("Invalid date format. Use DD.MM.YYYY.")
+
     record = Record(name)
     book.add_record(record)
 
@@ -122,9 +121,7 @@ def show_all_contacts(_, book, max_col_width=30):
 
     headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
 
-    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left", maxcolwidths=[max_col_width] * len(headers))
-
-    return table
+    return draw_table(headers, data, [max_col_width] * len(headers))
 
 @input_error
 def add_email(args, book):
@@ -205,8 +202,7 @@ def show_upcoming_birthdays(args, book, max_col_width=30):
 
     headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
 
-    table = tabulate(data, headers=headers, tablefmt="rounded_outline", stralign="left", maxcolwidths=[max_col_width] * len(headers))
-    return table
+    return draw_table(headers, data, [max_col_width] * len(headers))
 
 
 def search_contacts(args, book, max_col_width=30):
@@ -233,7 +229,7 @@ def search_contacts(args, book, max_col_width=30):
         address = str(record.address) if record.address else ""
         table_data.append([name, phones, emails, birthday, address])
 
-    return tabulate(table_data, headers=headers, tablefmt="rounded_outline", maxcolwidths=[max_col_width] * len(headers))
+    return draw_table(headers, table_data, [max_col_width] * len(headers))
 
 
 @input_error

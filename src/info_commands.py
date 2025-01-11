@@ -1,4 +1,4 @@
-from tabulate import tabulate
+from src.utils import draw_table
 
 def print_command_list(show_all=False):
     commands = [
@@ -27,7 +27,7 @@ def print_command_list(show_all=False):
     ]
 
     headers = ["Command", "Description"]
-    
+
     if not show_all:
         commands_to_show = [commands[0], commands[4], commands[14], commands[1], commands[2]]
     else:
@@ -36,5 +36,4 @@ def print_command_list(show_all=False):
     table_data = [[cmd['command'], cmd['description']] for cmd in commands_to_show]
 
     print("List of available commands:")
-    print(tabulate(table_data, headers=headers, tablefmt="rounded_outline"))
-
+    print(draw_table(headers, table_data))
