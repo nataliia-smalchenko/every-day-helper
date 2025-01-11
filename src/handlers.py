@@ -43,8 +43,8 @@ def add_contact(args, book):
     record = Record(name)
     book.add_record(record)
 
-    contact_info = f"Name: {name}, Phone: {phone}, Email: {email if email else ' '}, \
-        Birthday: {birthday if birthday else ' '}, Address: {address if address else ' '}"
+    contact_info = f"Name: {name}, Phone: {phone}, Email: {email if email else '-'}, \
+Birthday: {birthday if birthday else '-'}, Address: {address if address else '-'}"
     message = f"Contact added. Details: {contact_info}"
 
     if phone:
@@ -113,10 +113,10 @@ def show_all_contacts(_, book, max_col_width=30):
     data = []
     for record in book.data.values():
         name = record.name.value
-        phones = "; ".join(p.value for p in record.phones) if record.phones else " "
-        emails = "; ".join(e.value for e in record.emails) if record.emails else " "
-        birthday = str(record.birthday) if record.birthday else " "
-        address = str(record.address) if record.address else " "
+        phones = "; ".join(p.value for p in record.phones) if record.phones else "-"
+        emails = "; ".join(e.value for e in record.emails) if record.emails else "-"
+        birthday = str(record.birthday) if record.birthday else "-"
+        address = str(record.address) if record.address else "-"
         data.append([name, phones, emails, birthday, address])
 
     headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
@@ -194,13 +194,13 @@ def show_upcoming_birthdays(args, book, max_col_width=30):
     data = []
     for record, birthday in upcoming:
         name = record.name.value
-        phones = "; ".join(p.value for p in record.phones) if record.phones else "No phone"
-        emails = "; ".join(e.value for e in record.emails) if record.emails else "No email"
+        phones = "; ".join(p.value for p in record.phones) if record.phones else "-"
+        emails = "; ".join(e.value for e in record.emails) if record.emails else "-"
         birthday_str = birthday.strftime(DATE_FORMAT).ljust(14)
-        address = str(record.address) if record.address else "No address"
+        address = str(record.address) if record.address else "-"
         data.append([name, phones, emails, birthday_str, address])
 
-    headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
+    headers = ["Name", "Phones", "Emails", "Upcoming birthday", "Address"]
 
     return draw_table(headers, data, [max_col_width] * len(headers))
 
@@ -222,11 +222,11 @@ def search_contacts(args, book, max_col_width=30):
     headers = ["Name", "Phones", "Emails", "Birthday", "Address"]
 
     for record in results:
-        name = record.name.value if record.name else ""
-        phones = "; ".join(p.value for p in record.phones) if record.phones else ""
-        emails = "; ".join(e.value for e in record.emails) if record.emails else ""
-        birthday = str(record.birthday) if record.birthday else ""
-        address = str(record.address) if record.address else ""
+        name = record.name.value
+        phones = "; ".join(p.value for p in record.phones) if record.phones else "-"
+        emails = "; ".join(e.value for e in record.emails) if record.emails else "-"
+        birthday = str(record.birthday) if record.birthday else "-"
+        address = str(record.address) if record.address else "-"
         table_data.append([name, phones, emails, birthday, address])
 
     return draw_table(headers, table_data, [max_col_width] * len(headers))
@@ -306,7 +306,7 @@ def search_notes(args, notes_book):
     """
     if not args:
         raise ValueError("Usage: search_notes <query>")
-    query = " ".join(args)
+    query = "-".join(args)
     results = notes_book.search(query)
     if not results:
         return "No notes found for the query."
@@ -320,7 +320,7 @@ def list_notes(_, notes_book):
     if not notes_book.data:
         return "No notes available."
     return (
-        "---------------------------\n"
+        "───────────────────────────\n"
         f"{str(notes_book)}"
     )
 

@@ -28,7 +28,7 @@ def main():
     session = PromptSession(lexer=CustomLexer(HINTS), completer=CustomCompleter(HINTS), style=STYLE)
     running_text_animation()
     print(f"Loaded {len(adrress_book.data)} contacts.")
-    print(f"Loaded {len(notes_book.data)} contacts.")
+    print(f"Loaded {len(notes_book.data)} notes.")
     print_command_list(show_all=False)
 
     while True:
