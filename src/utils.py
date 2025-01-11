@@ -37,11 +37,13 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except ValueError as e:
-            print_formatted_text(HTML(f"<ansired>Error: {e}</ansired>"))
+            e_text = str(e).replace("<", "&lt;")
+            e_text = e_text.replace(">", "&gt;")
+            return f"<ansired>Error: {e_text}</ansired>"
         except IndexError:
-            print_formatted_text(HTML("<ansired>Error: Missing arguments.</ansired>"))
+            return "<ansired>Error: Missing arguments.</ansired>"
         except KeyError:
-            print_formatted_text(HTML("<ansired>Error: Record not found.</ansired>"))
+            return "<ansired>Error: Record not found.</ansired>"
     return wrapper
 
 
@@ -55,7 +57,7 @@ def is_valid_date(date):
     date_pattern = r'^([0-2]?[0-9]|3[0-1])\.(0[1-9]|1[0-2])\.\d{4}$'
     return bool(re.match(date_pattern, date))
 
-def draw_table(headers, data, maxcolwidths=None, allhlines=False):
+def draw_table(headers, data, maxcolwidths=None, allhlines=True):
     """
     Generate a formatted table using PrettyTable.
 
