@@ -57,43 +57,53 @@ handlers_notes = {
 
 # Обробка команд
 async def handle_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_input = update.message.text  # Отримуємо текст від користувача
-    command, args = parse_input(user_input)
+    user_input = update.message.text
+    user_id = update.effective_user.id
 
-    # Обробка команди
-    try:
-        if command in ["close", "exit"]:
-            response = "Good bye!"
-            adrress_book.save_data(ADRRESS_BOOK_FILENAME)
-            notes_book.save_data(NOTES_BOOK_FILENAME)
+    if user_id in user_states and user_states[user_id].get("command") == "add_contact":
+        # Парсимо ім'я та номер телефону
+        try:
+            # Викликаємо функцію для додавання контакту
+            _, args = parse_input(f"add_contact {user_input}")
+            response = add_contact(args, adrress_book)
+            print(args)
+
+            # Відповідаємо користувачу
             await update.message.reply_text(response)
-            print(response)  # Друкуємо в термінал
-            return
 
-        if command in handlers_contacts:
+            # Очищуємо стан
+            user_states[user_id] = {}
+        except ValueError:
+            await update.message.reply_text(
+                "Invalid format. Please send the contact details as:\n\n"
+                "<name> <phone>\n\n"
+                "Example:\nJohn 0123456789"
+            )
+        return
+
+    # Якщо немає активного стану, інша логіка
+    await update.message.reply_text("Invalid state. Please start again from the main menu.")
+
+    # Отримуємо контекст команди
+    command = user_states[user_id]["command"]
+    target = user_states[user_id]["target"]
+
+    # Парсимо вхідні дані
+    _, args = parse_input(user_input)
+    try:
+        if target == "contacts" and command in handlers_contacts:
             response = handlers_contacts[command](args, adrress_book)
-        elif command in handlers_notes:
+        elif target == "notes" and command in handlers_notes:
             response = handlers_notes[command](args, notes_book)
         else:
             response = "Invalid command."
 
-        keyboard = [
-            [InlineKeyboardButton("Main menu", callback_data="main menu")],
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        # Відправка повідомлення та вивід у термінал
-        await update.message.reply_text(
-            f"{response}\n\n"
-            f"Do you want comeback to main menu?\n", 
-            reply_markup=reply_markup
-        )
-        print(response)
+        await update.message.reply_text(response)
+        user_states[user_id] = {}  # Скидаємо стан після виконання
 
     except Exception as e:
         error_message = f"Error: {e}"
         await update.message.reply_text(error_message)
-        print(error_message)
 
 # Команда /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -121,68 +131,97 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Обробка натискання кнопок (Contacts або Notes)
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    command = query.data
+    user_id = update.effective_user.id
+
     await query.answer()  # Підтверджуємо натискання кнопки
 
-    if query.data == "contacts":
-        # Створюємо кнопки для управління контактами
-        keyboard = [
-            [InlineKeyboardButton("Add Contact", callback_data="add_contact")],
-            [InlineKeyboardButton("Change Contact", callback_data="change_contact")],
-            [InlineKeyboardButton("Show All Contacts", callback_data="all_contacts")],
-            [InlineKeyboardButton("Show phone of contact", callback_data="phone")],
-            [InlineKeyboardButton("Add birthday to contacts", callback_data="add_birthday")],
-            [InlineKeyboardButton("Show birthday of contact", callback_data="show_birthday")],
-            [InlineKeyboardButton("Show upcoming birthday of contact", callback_data="show_upcoming_birthdays")],
-            [InlineKeyboardButton("Back", callback_data="back")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="Choose an action for contacts:", reply_markup=reply_markup)
+    if command in ("contacts", "notes"):
+        keyboard = []
+        if command == "contacts":
+            keyboard = [
+                [InlineKeyboardButton("Add Contact", callback_data="add_contact")],
+                [InlineKeyboardButton("Change Contact", callback_data="change_contact")],
+                [InlineKeyboardButton("Show All Contacts", callback_data="all_contacts")],
+                [InlineKeyboardButton("Show phone of contact", callback_data="phone")],
+                [InlineKeyboardButton("Add birthday to contacts", callback_data="add_birthday")],
+                [InlineKeyboardButton("Show birthday of contact", callback_data="show_birthday")],
+                [InlineKeyboardButton("Show upcoming birthday of contact", callback_data="show_upcoming_birthdays")],
+                [InlineKeyboardButton("Back", callback_data="back")]
+            ]
+        elif command == "notes":
+            keyboard = [
+                [InlineKeyboardButton("Add Note", callback_data="add_note")],
+                [InlineKeyboardButton("Edit Note", callback_data="edit_note")],
+                [InlineKeyboardButton("Delete note", callback_data="delete_note")],
+                [InlineKeyboardButton("Show All Notes", callback_data="all_notes")],
+                [InlineKeyboardButton("Search Notes", callback_data="search_notes")],
+                [InlineKeyboardButton("Add tag to Note", callback_data="add_tag")],
+                [InlineKeyboardButton("Delete tag from Note", callback_data="remove_tag")],
+                [InlineKeyboardButton("Back", callback_data="back")]
+            ]
 
-    elif query.data == "notes":
-        # Створюємо кнопки для управління нотатками
-        keyboard = [
-            [InlineKeyboardButton("Add Note", callback_data="add_note")],
-            [InlineKeyboardButton("Edit Note", callback_data="edit_note")],
-            [InlineKeyboardButton("Delete note", callback_data="delete_note")],
-            [InlineKeyboardButton("Show All Notes", callback_data="all_notes")],
-            [InlineKeyboardButton("Search Notes", callback_data="search_notes")],
-            [InlineKeyboardButton("Add tag to Note", callback_data="add_tag")],
-            [InlineKeyboardButton("Delete tag from Note", callback_data="remove_tag")],
-            [InlineKeyboardButton("Back", callback_data="back")]
-        ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="Choose an action for notes:", reply_markup=reply_markup)
+        await query.edit_message_text(f"Choose an action for {command}:", reply_markup=reply_markup)
 
-    elif query.data in ("back", "main menu"):
+    elif command in ("back", "main menu"):
         # Повертаємось до головного меню
         await start(update, context)
 
-    else:
-        command = query.data
-        message = ''
-        reply_markup = None
+    if command in handlers_contacts:
+        # Зберігаємо стан для користувача
+        user_states[user_id] = {
+            "awaiting_input": True,
+            "command": command,
+            "target": "contacts" if command in handlers_contacts else "notes"
+        }
         keyboard = [
-            [InlineKeyboardButton("Main menu", callback_data="back")]
+            [InlineKeyboardButton("Back", callback_data=user_states[user_id]["target"])]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
+        # Інструкція для користувача
+        await query.edit_message_text(
+            "Please send me the contact details in the format:\n\n"
+            f"{helper_messages[command]}\n\n"
+            "Types of data:\n"
+            "<data> - Required information\n"
+            "[data] - Optional information\n"
+            "'<data>' or '[data]' - The data must be in brackets 'Example' or \"Example\"\n\n"
+            "Example:  John 0123456789",
+            reply_markup=reply_markup
+        )
 
-        if command in helper_messages:
-            message = (
-                "Please use the next construction and send me message\n\n"
-                f"{helper_messages[command]}\n\n"
-                "Types of data:\n"
-                "<data> - Required information\n"
-                "[data] - Optional information\n"
-                "'<data>' or '[data]' - The data must be in brackets 'Example' or \"Example\"\n"  
-            )
-        
-        elif command in ("all_notes", "all_contacts"):
+    elif command in handlers_contacts or command in handlers_notes:
+        keyboard = [
+            [InlineKeyboardButton("Back", callback_data="back")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        message = ''
+        user_states[user_id] = {
+            "awaiting_input": True,
+            "command": command,
+            "target": "contacts" if command in handlers_contacts else "notes"
+        }
+
+        if command in ("all_notes", "all_contacts"):
             if command == "all_notes":
                 message = list_notes(None, notes_book)
             else:
                 message = list_notes(None, adrress_book)
+            await query.edit_message_text(
+                message,
+                reply_markup=reply_markup
+            )
 
-        await query.edit_message_text(text=message, reply_markup=reply_markup)
+        await query.edit_message_text(
+            "Please use the next construction and send me message\n\n"
+            f"{helper_messages[command]}\n\n"
+            "Types of data:\n"
+            "<data> - Required information\n"
+            "[data] - Optional information\n"
+            "'<data>' or '[data]' - The data must be in brackets 'Example' or \"Example\"\n",
+            reply_markup=reply_markup
+        )
 
 # Основна функція
 def main():
