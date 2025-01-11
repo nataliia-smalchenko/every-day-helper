@@ -3,9 +3,10 @@ from datetime import datetime
 class Note:
 
     def __init__(self, title, text, tags=None):
+        uniq_tags = [*{*tags}]
         self.title = title
         self.text = text
-        self.tags = tags or []
+        self.tags = uniq_tags or []
         self.created_at = datetime.now()
         self.edited_at = datetime.now()
         self.id = self.created_at.timestamp()
