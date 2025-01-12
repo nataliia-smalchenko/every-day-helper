@@ -26,5 +26,5 @@ class Note:
             f"Note: {self.text}\n"
             f"Tags: {tags or 'No tags'}\n"
             f"Created: {self.created_at}\n"
-            "---------------------------\n"
+            "───────────────────────────\n"
         )

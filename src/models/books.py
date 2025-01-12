@@ -161,6 +161,6 @@ class NotesBook(UserDict):
                 f"Title: {note.title}\n"
                 f"Text: {note.text}\n"
                 f"Tags: {tags}\n"
-                "---------------------------"
+                "───────────────────────────"
             )
         return "\n".join(result)

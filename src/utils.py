@@ -37,11 +37,13 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except ValueError as e:
-            print_formatted_text(HTML(f"<ansired>Error: {e}</ansired>"))
+            e_text = str(e).replace("<", "&lt;")
+            e_text = e_text.replace(">", "&gt;")
+            return f"<ansired>Error: {e_text}</ansired>"
         except IndexError:
-            print_formatted_text(HTML("<ansired>Error: Missing arguments.</ansired>"))
+            return "<ansired>Error: Missing arguments.</ansired>"
         except KeyError:
-            print_formatted_text(HTML("<ansired>Error: Record not found.</ansired>"))
+            return "<ansired>Error: Record not found.</ansired>"
     return wrapper
 
 

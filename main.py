@@ -1,4 +1,4 @@
-from prompt_toolkit import PromptSession
+from prompt_toolkit import PromptSession, print_formatted_text, HTML
 from src.utils import parse_input
 from src.models.books import AddressBook, NotesBook
 from src.handlers import ( greet, add_birthday, add_contact,
@@ -28,7 +28,7 @@ def main():
     session = PromptSession(lexer=CustomLexer(HINTS), completer=CustomCompleter(HINTS), style=STYLE)
     running_text_animation()
     print(f"Loaded {len(adrress_book.data)} contacts.")
-    print(f"Loaded {len(notes_book.data)} contacts.")
+    print(f"Loaded {len(notes_book.data)} notes.")
     print_command_list(show_all=False)
 
     while True:
@@ -67,11 +67,11 @@ def main():
             elif command == "show_all_commands":
                 print_command_list(show_all=True)
             elif command in handlers_contacts:
-                print(handlers_contacts[command](args, adrress_book))
+                print_formatted_text(HTML(handlers_contacts[command](args, adrress_book)))
             elif command in handlers_notes:
-                print(handlers_notes[command](args, notes_book))
+                print_formatted_text(HTML(handlers_notes[command](args, notes_book)))
             else:
-                print("Invalid command.")
+                print_formatted_text(HTML("<ansired>Invalid command.</ansired>"))
 
         except KeyboardInterrupt:
             adrress_book.save_data(ADRRESS_BOOK_FILENAME)
