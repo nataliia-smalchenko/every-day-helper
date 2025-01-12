@@ -4,9 +4,11 @@
 
 **Every Day Helper** is a powerful system for organizing and managing your contacts and notes efficiently. Designed to simplify everyday tasks, it offers comprehensive features to keep your information accessible and organized.
 
-## Telegram Bot link
+## Telegram Bot
 
-[Telegram Bot]()
+Run the bot in the terminal using the main_bot.py command.
+Open Telegram and search for @mamrenko_homework_bot.
+Start a chat by clicking the Start button or sending the /start command.
 
 ## Key Features
 
