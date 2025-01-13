@@ -43,7 +43,23 @@ Start a chat by clicking the Start button or sending the /start command.
 - **Telegram Integration:**
   - Manage contacts and notes directly through a user-friendly Telegram bot interface.
 
-## Installation
+## Package installation and usage
+
+1. Install the package:
+
+   ```bash
+   pip install -i https://test.pypi.org/simple/ pl-every-day-helper
+   ```
+
+2. Run package from your terminal:
+
+   ```bash
+   pl_every_day_helper [.pkl file for saving contacts] [.pkl file for saving notes]
+   ```
+
+   If the addresses to the pkl files are not specified, then contacts will be stored in addressbook.pkl, and notes in notesbook.pkl.
+
+## Manual installation and usage
 
 1. Clone the repository:
 
@@ -58,17 +74,16 @@ Start a chat by clicking the Start button or sending the /start command.
    ```
 
 3. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 
-## Usage
+4. Run the application from the command line:
 
-Run the application from the command line:
-
-```bash
-every-day-helper
-```
+   ```bash
+   python main.py
+   ```
 
 ### Available Commands
 
